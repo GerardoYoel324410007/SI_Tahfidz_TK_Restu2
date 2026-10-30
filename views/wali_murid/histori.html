@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Histori Setoran - Tahfidz Parent Portal</title>
+    <meta name="description" content="Riwayat lengkap rekaman audio setoran hafalan siswa.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": { "on-surface": "#191c1c","background": "#f8faf9","on-primary-fixed": "#00210e","on-primary-container": "#8ad2a0","surface-bright": "#f8faf9","surface": "#f8faf9","surface-variant": "#e1e3e2","secondary-container": "#fe8a29","surface-container-lowest": "#ffffff","on-primary": "#ffffff","primary": "#004323","on-tertiary-container": "#aac1ff","on-error": "#ffffff","on-secondary": "#ffffff","outline-variant": "#bfc9bf","secondary": "#964900","primary-fixed": "#a9f3be","on-tertiary": "#ffffff","on-primary-fixed-variant": "#00522c","error-container": "#ffdad6","tertiary": "#003580","tertiary-fixed": "#d9e2ff","on-secondary-fixed": "#311300","primary-fixed-dim": "#8dd6a3","on-secondary-container": "#642f00","outline": "#707a70","on-surface-variant": "#404941","on-background": "#191c1c","inverse-primary": "#8dd6a3","inverse-surface": "#2e3131","surface-container-highest": "#e1e3e2","surface-container-low": "#f2f4f3","surface-container": "#eceeed","surface-container-high": "#e6e9e8","on-error-container": "#93000a","primary-container": "#0d5c34","tertiary-fixed-dim": "#b0c6ff","on-tertiary-fixed-variant": "#00429c","tertiary-container": "#004aae","surface-tint": "#226b41","surface-dim": "#d8dada","secondary-fixed-dim": "#ffb786","on-tertiary-fixed": "#001945","inverse-on-surface": "#eff1f0","secondary-fixed": "#ffdcc6","on-secondary-fixed-variant": "#723600","error": "#ba1a1a" },
+                "borderRadius": {"DEFAULT": "1rem","lg": "2rem","xl": "3rem","full": "9999px"},
+                "spacing": {"container-padding-sm": "16px","margin-mobile": "16px","base": "8px","margin-desktop": "48px","container-padding-md": "24px","gutter": "20px"},
+                "fontFamily": {"headline-lg-mobile": ["Plus Jakarta Sans"],"headline-lg": ["Plus Jakarta Sans"],"body-md": ["Plus Jakarta Sans"],"label-md": ["Plus Jakarta Sans"],"headline-md": ["Plus Jakarta Sans"],"headline-sm": ["Plus Jakarta Sans"],"body-lg": ["Plus Jakarta Sans"]},
+                "fontSize": { "headline-lg-mobile": ["26px",{"lineHeight":"34px","fontWeight":"700"}],"headline-lg": ["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-md": ["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-md": ["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-lg": ["18px",{"lineHeight":"26px","fontWeight":"500"}] }
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: max(884px, 100dvh); background-color: #f8faf9; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="bg-background font-body-md text-on-background min-h-screen pb-32">
+    <!-- Top App Bar -->
+    <header class="flex justify-between items-center px-margin-mobile py-3 sticky top-0 z-50 w-full bg-primary rounded-b-lg shadow-[0px_20px_40px_rgba(0,67,35,0.15)]">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-on-primary/20 bg-white flex items-center justify-center">
+                <img alt="Logo Restu Z" class="w-full h-full object-contain p-0.5" src="../../LOGO Restu 2 Excellent.png">
+            </div>
+            <h1 class="font-headline-sm text-headline-sm-mobile md:text-headline-sm font-bold text-on-primary">Tahfidz Parent Portal</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="authGuard.logout()" class="bg-[#ba1a1a] text-white px-4 py-1.5 rounded-full font-bold text-xs active:scale-95 transition-all flex items-center gap-1.5 shadow-md hover:bg-[#ba1a1a]/90" title="Logout">
+                <span class="material-symbols-outlined text-sm">logout</span>
+                <span>Keluar</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="px-margin-mobile py-8 space-y-6 max-w-2xl mx-auto">
+        <!-- Header -->
+        <section class="space-y-1">
+            <h2 class="font-headline-md text-headline-md text-primary">Histori Setoran</h2>
+            <p class="font-body-md text-on-surface-variant">Daftar lengkap rekaman hafalan yang pernah dikirimkan untuk ananda.</p>
+        </section>
+
+        <!-- Search / Filter -->
+        <section class="bg-white p-4 rounded-xl border border-outline-variant/30 shadow-sm flex gap-3">
+            <div class="flex-1 relative flex items-center">
+                <span class="material-symbols-outlined absolute left-3 text-on-surface-variant">search</span>
+                <input type="text" id="search-surah" oninput="filterHistory()" placeholder="Cari Nama Surah..." class="w-full pl-10 pr-4 py-2.5 bg-surface-container-low border border-outline-variant rounded-xl focus:outline-none focus:border-primary text-sm">
+            </div>
+            <select id="filter-status" onchange="filterHistory()" class="bg-surface-container-low border border-outline-variant rounded-xl text-sm font-bold px-3 py-2">
+                <option value="all">Semua Status</option>
+                <option value="diterima">Diterima (Lulus)</option>
+                <option value="perbaiki">Perbaiki</option>
+                <option value="menunggu">Menunggu</option>
+            </select>
+        </section>
+
+        <!-- Timeline / History Cards -->
+        <section id="history-container" class="space-y-4">
+            <div class="p-8 text-center text-on-surface-variant bg-white border border-outline-variant/30 rounded-xl">
+                Memuat riwayat setoran...
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-4 pt-2 bg-surface shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] rounded-t-lg">
+        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high px-5 py-2 rounded-2xl active:scale-90 transition-all duration-200" href="beranda.html">
+            <span class="material-symbols-outlined">home</span>
+            <span class="font-label-md text-xs mt-1">Home</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high px-5 py-2 rounded-2xl active:scale-90 transition-all duration-200 relative" href="setoran.html">
+            <span class="material-symbols-outlined">cloud_upload</span>
+            <span class="font-label-md text-xs mt-1">Setor</span>
+            <span id="setor-notif-dot" class="absolute top-2 right-6 w-2.5 h-2.5 bg-red-600 rounded-full hidden"></span>
+        </a>
+        <a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-2xl px-5 py-2 active:scale-90 transition-all duration-200" href="histori.html">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+            <span class="font-label-md text-xs mt-1">Histori</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high px-5 py-2 rounded-2xl active:scale-90 transition-all duration-200" href="raport.html">
+            <span class="material-symbols-outlined">insights</span>
+            <span class="font-label-md text-xs mt-1">Progress</span>
+        </a>
+        <button onclick="authGuard.logout()" class="flex flex-col items-center justify-center text-[#ba1a1a] hover:bg-red-50 px-5 py-2 rounded-2xl active:scale-90 transition-all duration-200">
+            <span class="material-symbols-outlined">logout</span>
+            <span class="font-label-md text-xs mt-1">Keluar</span>
+        </button>
+    </nav>
+
+    <script>
+    let allHistory = [];
+    let currentPlayingAudio = null;
+    let currentPlayingBtn = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await authGuard.protect('wali_murid');
+        if (!user) return;
+
+        await loadHistory();
+        checkPendingTask();
+    });
+
+    async function checkPendingTask() {
+        try {
+            const res = await api.get('/api/wali/tugas-hari-ini.php');
+            const d = res.data;
+            if (d.tugas && !d.setoran && !d.is_locked) {
+                const dot = document.getElementById('setor-notif-dot');
+                if (dot) dot.classList.remove('hidden');
+            }
+        } catch (e) {
+            console.error('Gagal memeriksa tugas baru:', e);
+        }
+    }
+
+    async function loadHistory() {
+        try {
+            const res = await api.get('/api/wali/histori.php');
+            if (res.status === 'success') {
+                allHistory = res.data || [];
+                renderHistory(allHistory);
+            } else {
+                api.toast('Gagal memuat histori: ' + res.message, 'error');
+            }
+        } catch (err) {
+            console.error('Gagal menarik data histori:', err);
+            api.toast('Kesalahan koneksi jaringan.', 'error');
+        }
+    }
+
+    function renderHistory(data) {
+        const container = document.getElementById('history-container');
+        if (data.length === 0) {
+            container.innerHTML = `
+                <div class="p-12 text-center text-on-surface-variant bg-white border border-outline-variant/30 rounded-xl">
+                    <span class="material-symbols-outlined text-4xl text-outline mb-2 block">history</span>
+                    Belum ada rekaman setoran hafalan yang terdaftar.
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = data.map(item => {
+            let statusClass = 'bg-tertiary/10 text-tertiary';
+            let statusLabel = 'Menunggu Koreksi';
+            if (item.status === 'diterima') {
+                statusClass = 'bg-primary/10 text-primary border border-primary/20';
+                statusLabel = 'Diterima';
+            } else if (item.status === 'perbaiki') {
+                statusClass = 'bg-error/10 text-error border border-error/20';
+                statusLabel = 'Perlu Perbaikan';
+            }
+
+            const time = new Date(item.waktu_kirim).toLocaleDateString('id-ID', {
+                day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+
+            let criteriaHTML = '';
+            if (item.detail_koreksi && item.detail_koreksi.length > 0) {
+                criteriaHTML = `
+                    <div class="mt-3 pt-3 border-t border-outline-variant/20">
+                        <p class="font-label-md text-[11px] text-primary mb-2">Skor Kriteria Penilaian:</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            ${item.detail_koreksi.map(crit => {
+                                const val = String(crit.nilai).trim().toUpperCase();
+                                let level = 0;
+                                let label = '';
+                                if (val === '1' || val === 'BB') { level = 1; label = 'BB'; }
+                                else if (val === '2' || val === 'MB') { level = 2; label = 'MB'; }
+                                else if (val === '3' || val === 'BSH') { level = 3; label = 'BSH'; }
+                                else if (val === '4' || val === 'BSB') { level = 4; label = 'BSB'; }
+                                else {
+                                    const num = parseInt(val);
+                                    if (num >= 1 && num <= 4) {
+                                        level = num;
+                                        label = ['', 'BB', 'MB', 'BSH', 'BSB'][num];
+                                    }
+                                }
+
+                                if (level > 0) {
+                                    const stars = '⭐'.repeat(level);
+                                    let colorBadge = '';
+                                    if (label === 'BB') colorBadge = 'bg-red-100 text-red-700 border-red-200';
+                                    else if (label === 'MB') colorBadge = 'bg-amber-100 text-amber-700 border-amber-200';
+                                    else if (label === 'BSH') colorBadge = 'bg-blue-100 text-blue-700 border-blue-200';
+                                    else if (label === 'BSB') colorBadge = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                                    
+                                    return `
+                                        <div class="flex flex-col items-center justify-center p-2 rounded-xl border ${colorBadge} bg-white shadow-xs">
+                                            <span class="text-[9px] font-black uppercase tracking-wider block text-center">${crit.kriteria}</span>
+                                            <div class="flex items-center gap-0.5 mt-1 flex-wrap justify-center">
+                                                <span class="text-[10px] font-extrabold">${label}</span>
+                                                <span class="text-[8px]">${stars}</span>
+                                            </div>
+                                        </div>`;
+                                } else {
+                                    return `
+                                        <div class="bg-background border border-outline-variant/30 rounded-xl p-2 text-center">
+                                            <span class="text-[9px] text-on-surface-variant block font-bold uppercase">${crit.kriteria}</span>
+                                            <span class="text-sm font-black text-primary block mt-0.5">${crit.nilai}</span>
+                                        </div>`;
+                                }
+                            }).join('')}
+                        </div>
+                    </div>`;
+            }
+
+            const babText = item.bab ? ` (${item.bab})` : '';
+            return `
+                <div class="bg-white rounded-2xl border border-outline-variant/30 p-5 shadow-sm space-y-4 hover:border-primary/20 transition-all">
+                    <div class="flex justify-between items-start gap-2 border-b border-outline-variant/20 pb-3">
+                        <div>
+                            <h3 class="font-headline-sm text-headline-sm text-on-surface">QS. ${item.nama_surat}${babText}</h3>
+                            <p class="text-xs text-on-surface-variant font-medium mt-0.5">Ayat ${item.ayat_dari} - ${item.ayat_sampai} • ${time}</p>
+                        </div>
+                        <span class="px-3 py-1 ${statusClass} rounded-full text-xs font-bold whitespace-nowrap">${statusLabel}</span>
+                    </div>
+
+                    <!-- Audio Player Interface -->
+                    <div class="p-3 bg-surface-container-low border border-outline-variant/40 rounded-xl flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2 flex-1 min-w-0">
+                            <span class="material-symbols-outlined text-primary">audio_file</span>
+                            <span class="text-xs text-on-surface font-mono truncate">VN_Setoran_${item.nama_surat.replace(/\s+/g, '')}.mp3</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="playAudio(api.toAbsoluteUrl('/${item.file_audio}'), this)" class="bg-primary text-white rounded-lg px-3 py-1.5 flex items-center gap-1 text-[11px] font-bold active:scale-95 transition-all">
+                                <span class="material-symbols-outlined text-[16px]">play_arrow</span> PUTAR
+                            </button>
+                            <a href="${api.toAbsoluteUrl('/' + item.file_audio)}" download class="bg-surface-container-high border border-outline-variant text-on-surface rounded-lg px-3 py-1.5 flex items-center gap-1 text-[11px] font-bold">
+                                <span class="material-symbols-outlined text-[16px]">download</span> UNDUH
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Teacher Comments / Catatan Guru -->
+                    ${item.catatan_guru ? `
+                        <div class="bg-surface-container-low rounded-xl p-3.5 border-l-4 border-primary text-xs space-y-2">
+                            <div class="flex justify-between font-bold text-on-surface-variant text-[10px]">
+                                <span>CATATAN GURU:</span>
+                                <span>${item.waktu_koreksi ? new Date(item.waktu_koreksi).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : ''}</span>
+                            </div>
+                            <p class="text-on-surface-variant font-medium">“ ${item.catatan_guru} ”</p>
+                            ${criteriaHTML}
+                        </div>
+                    ` : ''}
+
+                </div>`;
+        }).join('');
+    }
+
+    function filterHistory() {
+        const search = document.getElementById('search-surah').value.toLowerCase().trim();
+        const status = document.getElementById('filter-status').value;
+
+        const filtered = allHistory.filter(item => {
+            const matchesSearch = item.nama_surat.toLowerCase().includes(search);
+            const matchesStatus = status === 'all' || item.status === status;
+            return matchesSearch && matchesStatus;
+        });
+
+        renderHistory(filtered);
+    }
+
+    function playAudio(src, btn) {
+        if (currentPlayingAudio) {
+            currentPlayingAudio.pause();
+            currentPlayingBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">play_arrow</span> PUTAR';
+            
+            if (currentPlayingAudio.src.endsWith(src.replace('../../', ''))) {
+                currentPlayingAudio = null;
+                currentPlayingBtn = null;
+                return;
+            }
+        }
+
+        currentPlayingAudio = new Audio(src);
+        currentPlayingBtn = btn;
+        
+        currentPlayingAudio.play();
+        btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">pause</span> PAUSE';
+
+        currentPlayingAudio.addEventListener('ended', () => {
+            btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">play_arrow</span> PUTAR';
+            currentPlayingAudio = null;
+            currentPlayingBtn = null;
+        });
+    }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Ruang Setoran & Panduan - Tahfidz Parent Portal</title>
+    <meta name="description" content="Ruang setoran hafalan dan panduan untuk wali murid KB-BA-TPA Restu Z.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": { "on-surface": "#191c1c","background": "#f8faf9","on-primary-fixed": "#00210e","on-primary-container": "#8ad2a0","surface-bright": "#f8faf9","surface": "#f8faf9","surface-variant": "#e1e3e2","secondary-container": "#fe8a29","surface-container-lowest": "#ffffff","on-primary": "#ffffff","primary": "#004323","on-tertiary-container": "#aac1ff","on-error": "#ffffff","on-secondary": "#ffffff","outline-variant": "#bfc9bf","secondary": "#964900","primary-fixed": "#a9f3be","on-tertiary": "#ffffff","on-primary-fixed-variant": "#00522c","error-container": "#ffdad6","tertiary": "#003580","tertiary-fixed": "#d9e2ff","on-secondary-fixed": "#311300","primary-fixed-dim": "#8dd6a3","on-secondary-container": "#642f00","outline": "#707a70","on-surface-variant": "#404941","on-background": "#191c1c","inverse-primary": "#8dd6a3","inverse-surface": "#2e3131","surface-container-highest": "#e1e3e2","surface-container-low": "#f2f4f3","surface-container": "#eceeed","surface-container-high": "#e6e9e8","on-error-container": "#93000a","primary-container": "#0d5c34","tertiary-fixed-dim": "#b0c6ff","on-tertiary-fixed-variant": "#00429c","tertiary-container": "#004aae","surface-tint": "#226b41","surface-dim": "#d8dada","secondary-fixed-dim": "#ffb786","on-tertiary-fixed": "#001945","inverse-on-surface": "#eff1f0","secondary-fixed": "#ffdcc6","on-secondary-fixed-variant": "#723600","error": "#ba1a1a" },
+                "borderRadius": {"DEFAULT": "1rem","lg": "2rem","xl": "3rem","full": "9999px"},
+                "spacing": {"container-padding-sm": "16px","margin-mobile": "16px","base": "8px","margin-desktop": "48px","container-padding-md": "24px","gutter": "20px"},
+                "fontFamily": {"headline-lg-mobile": ["Plus Jakarta Sans"],"headline-lg": ["Plus Jakarta Sans"],"body-md": ["Plus Jakarta Sans"],"label-md": ["Plus Jakarta Sans"],"headline-md": ["Plus Jakarta Sans"],"headline-sm": ["Plus Jakarta Sans"],"body-lg": ["Plus Jakarta Sans"]},
+                "fontSize": { "headline-lg-mobile": ["26px",{"lineHeight":"34px","fontWeight":"700"}],"headline-lg": ["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-md": ["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-md": ["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-lg": ["18px",{"lineHeight":"26px","fontWeight":"500"}] }
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: max(884px, 100dvh); background-color: #f8faf9; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+    <!-- Top App Bar -->
+    <header class="flex justify-between items-center px-margin-mobile py-3 sticky top-0 z-50 w-full bg-primary rounded-b-lg shadow-[0px_20px_40px_rgba(0,67,35,0.15)]">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed bg-white flex items-center justify-center">
+                <img alt="Logo Restu Z" class="w-full h-full object-contain p-0.5" src="../../LOGO Restu 2 Excellent.png">
+            </div>
+            <h1 class="font-headline-sm text-headline-sm-mobile md:text-headline-sm text-on-primary font-bold">Tahfidz Parent Portal</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="authGuard.logout()" class="bg-[#ba1a1a] text-white px-4 py-1.5 rounded-full font-bold text-xs active:scale-95 transition-all flex items-center gap-1.5 shadow-md hover:bg-[#ba1a1a]/90" title="Logout">
+                <span class="material-symbols-outlined text-sm">logout</span>
+                <span>Keluar</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="px-margin-mobile py-8 space-y-8 max-w-2xl mx-auto">
+        <!-- Header -->
+        <section class="space-y-2">
+            <h2 class="font-headline-md text-headline-md text-primary">Ruang Setoran &amp; Panduan</h2>
+            <p class="font-body-md text-on-surface-variant">Lengkapi hafalan hari ini dengan mendengarkan panduan guru terlebih dahulu.</p>
+        </section>
+
+        <!-- Deadline Card -->
+        <div id="deadline-card" class="bg-amber-50 border-2 border-amber-200 rounded-xl p-4 flex items-center gap-3 hidden">
+            <span class="material-symbols-outlined text-amber-600 text-3xl">alarm</span>
+            <div>
+                <p class="text-[12px] font-bold text-amber-700 uppercase tracking-wider">Tenggat Waktu Pengumpulan</p>
+                <p id="deadline-text" class="font-label-md text-on-surface font-semibold">-</p>
+            </div>
+        </div>
+
+        <!-- Teacher Audio Guide -->
+        <section class="bg-surface-container-lowest rounded-lg p-6 shadow-[0px_20px_40px_rgba(0,67,35,0.08)] border border-surface-variant/30 overflow-hidden relative">
+            <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                <span class="material-symbols-outlined text-[120px]">record_voice_over</span>
+            </div>
+            <div class="relative z-10 space-y-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-primary-fixed flex items-center justify-center rounded-2xl">
+                        <span class="material-symbols-outlined text-primary text-3xl">school</span>
+                    </div>
+                    <div>
+                        <p class="font-label-md text-primary uppercase tracking-wider">Contoh Bacaan</p>
+                        <h3 class="font-headline-sm text-on-surface">Dengarkan Contoh Bacaan Ibu Khadijah</h3>
+                    </div>
+                </div>
+                <!-- Audio Control -->
+                <div class="flex flex-col items-center justify-center py-4 space-y-4">
+                    <button id="play-btn" onclick="togglePlay()" class="w-24 h-24 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all hover:bg-primary-container">
+                        <span class="material-symbols-outlined text-5xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                    </button>
+                    <div class="w-full space-y-2">
+                        <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+                            <div class="h-full bg-primary rounded-full transition-all duration-300" id="audio-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between font-label-md text-on-surface-variant">
+                            <span id="current-time">00:00</span>
+                            <span id="total-time">--:--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Upload Section -->
+        <section class="space-y-4" id="upload-section">
+            <label class="font-headline-sm text-on-surface block px-2">Rekam Setoran Anda</label>
+            
+            <!-- Pilihan Mode -->
+            <div class="flex gap-3 mb-4">
+                <button id="btn-mode-rekam" onclick="setMode('rekam')" 
+                        class="flex-1 py-3 border-2 border-primary bg-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all">
+                    <span class="material-symbols-outlined">mic</span> Rekam Langsung
+                </button>
+                <button id="btn-mode-file" onclick="setMode('file')" 
+                        class="flex-1 py-3 border-2 border-outline-variant text-on-surface-variant rounded-xl font-bold flex items-center justify-center gap-2 transition-all">
+                    <span class="material-symbols-outlined">folder_open</span> Pilih File
+                </button>
+            </div>
+            
+            <!-- Mode Rekam -->
+            <div id="mode-rekam" class="bg-surface-container-low border-2 border-dashed border-outline-variant rounded-lg p-8 flex flex-col items-center justify-center text-center space-y-4">
+                <div id="record-indicator" class="w-20 h-20 rounded-full bg-error/10 flex items-center justify-center transition-all">
+                    <span class="material-symbols-outlined text-4xl text-error">mic</span>
+                </div>
+                <div>
+                    <p id="record-status" class="font-body-lg text-on-surface">Tekan untuk mulai merekam</p>
+                    <p id="record-duration" class="font-label-md text-on-surface-variant">00:00</p>
+                </div>
+                <button id="btn-record" onclick="toggleRecording()" 
+                        class="w-16 h-16 bg-error text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all hover:bg-error/80">
+                    <span class="material-symbols-outlined text-3xl">fiber_manual_record</span>
+                </button>
+            </div>
+            
+            <!-- Mode File -->
+            <div id="mode-file" class="hidden">
+                <label for="audio-upload" class="bg-surface-container-low border-2 border-dashed border-outline-variant rounded-lg p-8 flex flex-col items-center justify-center text-center space-y-4 hover:border-primary transition-colors cursor-pointer group shadow-sm">
+                    <div class="w-20 h-20 rounded-full bg-surface-container-highest flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-primary">cloud_upload</span>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="font-body-lg text-on-surface">Klik untuk Pilih File Audio</h4>
+                        <p class="font-label-md text-on-surface-variant">Format didukung: MP3, WAV, M4A, OGG, WebM (Maks. 10MB)</p>
+                    </div>
+                    <input id="audio-upload" type="file" accept="audio/*" class="hidden" onchange="handleFileUpload(this)">
+                </label>
+            </div>
+            
+            <!-- Preview -->
+            <div id="file-preview" class="hidden bg-primary-fixed/20 border border-primary/20 rounded-lg p-4 space-y-3">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white">audio_file</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-label-md text-on-surface" id="file-name">file.mp3</p>
+                        <p class="text-[12px] text-on-surface-variant" id="file-size">Siap dikirim</p>
+                    </div>
+                    <button onclick="removeFile()" class="text-error hover:opacity-80 transition-opacity">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <audio id="preview-audio" controls class="w-full h-10 rounded"></audio>
+            </div>
+        </section>
+
+        <!-- Submit -->
+        <section class="pt-4">
+            <button id="btn-submit" onclick="submitSetoran()" class="w-full py-5 bg-primary text-on-primary font-headline-sm rounded-lg shadow-[0px_8px_24px_rgba(0,67,35,0.2)] active:scale-95 transition-all flex items-center justify-center gap-3">
+                <span id="btn-icon" class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+                <span id="btn-text">Kirim Setoran Hafalan</span>
+            </button>
+            <div id="upload-progress" class="hidden mt-4">
+                <div class="flex justify-between text-label-md text-on-surface-variant mb-2">
+                    <span>Mengunggah...</span>
+                    <span id="upload-persen">0%</span>
+                </div>
+                <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-primary rounded-full transition-all" style="width: 0%"></div>
+                </div>
+            </div>
+            <p class="text-center font-label-md text-on-surface-variant mt-4">Pencet tombol di atas untuk mengirimkan rekaman ke Guru.</p>
+        </section>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-4 pt-2 bg-surface shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] rounded-t-lg">
+        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high px-5 py-2 rounded-2xl active:scale-90 transition-all duration-200" href="beranda.html">
+            <span class="material-symbols-outlined">home</span>
+            <span class="font-label-md text-xs mt-1">Home</span>
+        </a>
+        <a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-2xl px-5 py-2 active:scale-90 transition-all duration-200 relative" href="setoran.html">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
+            <span class="font-label-md text-xs mt-1">Setor</span>
+            <span id="setor-notif-dot" class="absolute top-2 right-6 w-2.5 h-2.5 bg-red-600 rounded-full hidden"></span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high px-5 py-2 rounded-2xl active:scale-90 transition-all duration-200" href="histori.html">
+            <span class="material-symbols-outlined">history</span>
+            <span class="font-label-md text-xs mt-1">Histori</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high px-5 py-2 rounded-2xl active:scale-90 transition-all duration-200" href="raport.html">
+            <span class="material-symbols-outlined">insights</span>
+            <span class="font-label-md text-xs mt-1">Progress</span>
+        </a>
+        <button onclick="authGuard.logout()" class="flex flex-col items-center justify-center text-[#ba1a1a] hover:bg-red-50 px-5 py-2 rounded-2xl active:scale-90 transition-all duration-200">
+            <span class="material-symbols-outlined">logout</span>
+            <span class="font-label-md text-xs mt-1">Keluar</span>
+        </button>
+    </nav>
+
+    <script>
+        let selectedFile = null;
+        let audioPanduanEl = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordInterval = null;
+        let recordSeconds = 0;
+        let currentMode = 'rekam';
+        let previewObjectUrl = null;
+
+        // Mode switching
+        function setMode(mode) {
+            if (mode === 'rekam' && (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)) {
+                api.toast('Perekaman langsung memerlukan koneksi aman (HTTPS) atau localhost. Dialihkan ke mode pilih file.', 'warning');
+                mode = 'file';
+            }
+            currentMode = mode;
+            document.getElementById('mode-rekam').classList.toggle('hidden', mode !== 'rekam');
+            document.getElementById('mode-file').classList.toggle('hidden', mode !== 'file');
+            
+            document.getElementById('btn-mode-rekam').className = mode === 'rekam' 
+                ? 'flex-1 py-3 border-2 border-primary bg-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all'
+                : 'flex-1 py-3 border-2 border-outline-variant text-on-surface-variant rounded-xl font-bold flex items-center justify-center gap-2 transition-all';
+            
+            document.getElementById('btn-mode-file').className = mode === 'file'
+                ? 'flex-1 py-3 border-2 border-primary bg-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all'
+                : 'flex-1 py-3 border-2 border-outline-variant text-on-surface-variant rounded-xl font-bold flex items-center justify-center gap-2 transition-all';
+        }
+
+        // Recording functions
+        async function toggleRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                stopRecording();
+            } else {
+                await startRecording();
+            }
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.addEventListener('dataavailable', (e) => {
+                    if (e.data.size > 0) {
+                        audioChunks.push(e.data);
+                    }
+                });
+                
+                mediaRecorder.addEventListener('stop', () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    selectedFile = new File([audioBlob], `rekaman_${Date.now()}.webm`, { type: 'audio/webm' });
+                    
+                    // Show preview
+                    document.getElementById('file-name').textContent = selectedFile.name;
+                    document.getElementById('file-size').textContent = formatFileSize(selectedFile.size);
+                    if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+                    previewObjectUrl = URL.createObjectURL(audioBlob);
+                    const previewEl = document.getElementById('preview-audio');
+                    previewEl.src = previewObjectUrl;
+                    document.getElementById('file-preview').classList.remove('hidden');
+                    
+                    // Stop all tracks
+                    stream.getTracks().forEach(track => track.stop());
+                });
+                
+                mediaRecorder.start();
+                
+                // Update UI
+                document.getElementById('btn-record').innerHTML = '<span class="material-symbols-outlined text-3xl">stop</span>';
+                document.getElementById('btn-record').classList.remove('bg-error');
+                document.getElementById('btn-record').classList.add('bg-surface-container-highest');
+                document.getElementById('record-status').textContent = 'Merekam...';
+                document.getElementById('record-indicator').classList.add('animate-pulse');
+                
+                // Timer
+                recordSeconds = 0;
+                recordInterval = setInterval(() => {
+                    recordSeconds++;
+                    const mins = Math.floor(recordSeconds / 60).toString().padStart(2, '0');
+                    const secs = (recordSeconds % 60).toString().padStart(2, '0');
+                    document.getElementById('record-duration').textContent = `${mins}:${secs}`;
+                }, 1000);
+                
+            } catch (err) {
+                console.error('Error accessing microphone:', err);
+                api.toast('Tidak dapat mengakses mikrofon. Pastikan izin mikrofon diberikan.', 'error');
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                clearInterval(recordInterval);
+                
+                // Update UI
+                document.getElementById('btn-record').innerHTML = '<span class="material-symbols-outlined text-3xl">fiber_manual_record</span>';
+                document.getElementById('btn-record').classList.remove('bg-surface-container-highest');
+                document.getElementById('btn-record').classList.add('bg-error');
+                document.getElementById('record-status').textContent = 'Rekaman selesai';
+                document.getElementById('record-indicator').classList.remove('animate-pulse');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await authGuard.protect('wali_murid');
+            // Check HTTPS or localhost context for recording
+            const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const hasMicSupport = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+            if (!isSecure || !hasMicSupport) {
+                const btnRekam = document.getElementById('btn-mode-rekam');
+                if (btnRekam) {
+                    btnRekam.disabled = true;
+                    btnRekam.title = "Memerlukan koneksi aman (HTTPS)";
+                    btnRekam.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+                setMode('file');
+                
+                const uploadSec = document.getElementById('upload-section');
+                if (uploadSec) {
+                    const warningBanner = document.createElement('div');
+                    warningBanner.className = "bg-amber-50 border-l-4 border-amber-500 text-amber-900 p-4 rounded-r-xl text-xs space-y-1 mb-4 shadow-sm";
+                    warningBanner.innerHTML = `
+                        <p class="font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[16px] font-bold">warning</span> Koneksi Tidak Aman (HTTP)</p>
+                        <p class="text-on-surface-variant font-medium">Fitur perekaman suara langsung dinonaktifkan oleh browser karena tidak menggunakan HTTPS. Silakan gunakan opsi <strong>Pilih File</strong> untuk mengirim setoran hafalan Anda.</p>
+                    `;
+                    uploadSec.insertBefore(warningBanner, uploadSec.querySelector('div.flex.gap-3') || uploadSec.firstChild);
+                }
+            } else {
+                setMode('rekam');
+            }
+            try {
+                const res = await api.get('/api/wali/tugas-hari-ini.php');
+                const d = res.data;
+
+                if (!d.tugas) {
+                    document.querySelector('main').innerHTML = '<div class="text-center py-16"><span class="material-symbols-outlined text-[64px] text-on-surface-variant block mb-4">assignment</span><p class="text-on-surface-variant">Tidak ada tugas hafalan hari ini.</p></div>';
+                    return;
+                }
+
+                // Format & display deadline
+                if (d.tugas.deadline) {
+                    try {
+                        const dlString = d.tugas.deadline.replace(/-/g, "/");
+                        const deadlineDate = new Date(dlString);
+                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                        const formattedDeadline = deadlineDate.toLocaleDateString('id-ID', options) + ' WIB';
+                        document.getElementById('deadline-text').textContent = formattedDeadline;
+                        document.getElementById('deadline-card').classList.remove('hidden');
+
+                        const now = new Date();
+                        const diffMs = deadlineDate - now;
+                        if (diffMs > 0) {
+                            const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+                            const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                            let toastMsg = `Tenggat waktu: ${formattedDeadline}.`;
+                            if (diffHrs > 0) {
+                                toastMsg += ` Sisa waktu ${diffHrs} jam ${diffMins} menit lagi.`;
+                            } else {
+                                toastMsg += ` Sisa waktu ${diffMins} menit lagi.`;
+                            }
+                            api.toast(toastMsg, 'info');
+                        } else {
+                            api.toast('Batas waktu pengumpulan sudah habis!', 'error');
+                        }
+                    } catch (e) {
+                        console.error('Error formatting deadline:', e);
+                    }
+                }
+
+                // Set audio panduan
+                if (d.tugas.audio_panduan) {
+                    audioPanduanEl = new Audio('../../' + d.tugas.audio_panduan);
+                    audioPanduanEl.addEventListener('loadedmetadata', () => {
+                        const m = Math.floor(audioPanduanEl.duration / 60);
+                        const s = Math.floor(audioPanduanEl.duration % 60);
+                        document.getElementById('total-time').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                    });
+                    audioPanduanEl.addEventListener('timeupdate', () => {
+                        if (audioPanduanEl.duration) {
+                            const pct = (audioPanduanEl.currentTime / audioPanduanEl.duration) * 100;
+                            document.getElementById('audio-progress').style.width = pct + '%';
+                            const m = Math.floor(audioPanduanEl.currentTime / 60);
+                            const s = Math.floor(audioPanduanEl.currentTime % 60);
+                            document.getElementById('current-time').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                        }
+                    });
+                }
+
+                // Update title
+                const babText = d.tugas.bab ? ` (${d.tugas.bab})` : '';
+                document.querySelector('h3.font-headline-sm').textContent = `Dengarkan Panduan: QS. ${d.tugas.nama_surat}${babText} Ayat ${d.tugas.ayat_dari}-${d.tugas.ayat_sampai}`;
+
+                // Check lock
+                if (d.is_locked) {
+                    document.getElementById('upload-section').innerHTML = '<div class="bg-red-50 border-l-4 border-error p-5 rounded-lg text-center"><span class="material-symbols-outlined text-error text-4xl mb-2 block">lock</span><p class="font-bold text-error">Batas waktu sudah habis.</p><p class="text-on-surface-variant text-sm mt-1">Hubungi wali kelas untuk perpanjangan.</p></div>';
+                    document.querySelector('button[onclick="submitSetoran()"]').disabled = true;
+                    document.querySelector('button[onclick="submitSetoran()"]').classList.add('opacity-50', 'cursor-not-allowed');
+                }
+
+                // Check existing setoran
+                if (d.setoran) {
+                    if (d.setoran.status === 'diterima') {
+                        api.toast('Setoran hari ini sudah diterima.', 'success');
+                    } else if (d.setoran.status === 'menunggu') {
+                        api.toast('Setoran sudah dikirim, menunggu koreksi.', 'info');
+                    }
+                }
+
+                // Check pending task to display dot
+                if (d.tugas && !d.setoran && !d.is_locked) {
+                    const dot = document.getElementById('setor-notif-dot');
+                    if (dot) dot.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error('Gagal memuat tugas:', err);
+            }
+        });
+
+        function togglePlay() {
+            if (!audioPanduanEl) return;
+            if (audioPanduanEl.paused) {
+                audioPanduanEl.play();
+                document.getElementById('play-btn').innerHTML = '<span class="material-symbols-outlined text-5xl" style="font-variation-settings: \'FILL\' 1;">pause</span>';
+            } else {
+                audioPanduanEl.pause();
+                document.getElementById('play-btn').innerHTML = '<span class="material-symbols-outlined text-5xl" style="font-variation-settings: \'FILL\' 1;">play_arrow</span>';
+            }
+        }
+
+        function handleFileUpload(input) {
+            if (input.files && input.files[0]) {
+                selectedFile = input.files[0];
+                document.getElementById('file-name').textContent = selectedFile.name;
+                document.getElementById('file-size').textContent = formatFileSize(selectedFile.size);
+                if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+                previewObjectUrl = URL.createObjectURL(selectedFile);
+                const previewEl = document.getElementById('preview-audio');
+                previewEl.src = previewObjectUrl;
+                document.getElementById('file-preview').classList.remove('hidden');
+            }
+        }
+
+        function removeFile() {
+            selectedFile = null;
+            if (previewObjectUrl) {
+                URL.revokeObjectURL(previewObjectUrl);
+                previewObjectUrl = null;
+            }
+            document.getElementById('audio-upload').value = '';
+            document.getElementById('preview-audio').src = '';
+            document.getElementById('file-preview').classList.add('hidden');
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        async function submitSetoran() {
+            if (!selectedFile) {
+                api.toast('Pilih file audio terlebih dahulu.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit');
+            const btnIcon = document.getElementById('btn-icon');
+            const btnText = document.getElementById('btn-text');
+            const progressDiv = document.getElementById('upload-progress');
+            
+            // Set loading state
+            btn.disabled = true;
+            btnIcon.textContent = 'hourglass_empty';
+            btnIcon.classList.add('animate-spin');
+            btnText.textContent = 'Mengunggah...';
+            progressDiv.classList.remove('hidden');
+
+            const formData = new FormData();
+            formData.append('file_audio', selectedFile);
+
+            // Gunakan XMLHttpRequest untuk progress tracking
+            const xhr = new XMLHttpRequest();
+            
+            xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    const pct = Math.round((e.loaded / e.total) * 100);
+                    document.getElementById('upload-persen').textContent = pct + '%';
+                    document.getElementById('progress-bar').style.width = pct + '%';
+                }
+            });
+            
+            xhr.addEventListener('load', () => {
+                if (xhr.status === 201) {
+                    api.toast('Setoran berhasil dikirim!', 'success');
+                    setTimeout(() => window.location.href = 'beranda.html', 1500);
+                } else {
+                    try {
+                        const res = JSON.parse(xhr.responseText);
+                        api.toast(res.message || 'Gagal mengirim setoran.', 'error');
+                    } catch {
+                        api.toast('Gagal mengirim setoran.', 'error');
+                    }
+                    resetSubmitButton();
+                }
+            });
+            
+            xhr.addEventListener('error', () => {
+                api.toast('Terjadi kesalahan koneksi.', 'error');
+                resetSubmitButton();
+            });
+            
+            xhr.open('POST', api.toAbsoluteUrl('/api/wali/kirim-setoran.php'));
+            xhr.send(formData);
+        }
+
+        function resetSubmitButton() {
+            const btn = document.getElementById('btn-submit');
+            const btnIcon = document.getElementById('btn-icon');
+            const btnText = document.getElementById('btn-text');
+            const progressDiv = document.getElementById('upload-progress');
+            
+            btn.disabled = false;
+            btnIcon.textContent = 'send';
+            btnIcon.classList.remove('animate-spin');
+            btnText.textContent = 'Kirim Setoran Hafalan';
+            progressDiv.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

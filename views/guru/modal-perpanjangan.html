@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Buka Kunci Deadline - Tahfidz BA Restu Z</title>
+    <meta name="description" content="Modal override deadline untuk guru wali kelas.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": { "tertiary": "#003580","primary-fixed": "#a9f3be","on-primary": "#ffffff","surface-tint": "#226b41","surface-bright": "#f8faf9","on-primary-container": "#8ad2a0","secondary-container": "#fe8a29","secondary-fixed-dim": "#ffb786","surface-dim": "#d8dada","surface-container-highest": "#e1e3e2","primary": "#004323","error": "#ba1a1a","on-tertiary-container": "#aac1ff","on-surface": "#191c1c","inverse-surface": "#2e3131","primary-fixed-dim": "#8dd6a3","on-secondary": "#ffffff","surface": "#f8faf9","secondary-fixed": "#ffdcc6","surface-container-high": "#e6e9e8","on-surface-variant": "#404941","outline": "#707a70","on-tertiary-fixed-variant": "#00429c","on-secondary-fixed": "#311300","error-container": "#ffdad6","tertiary-fixed": "#d9e2ff","tertiary-fixed-dim": "#b0c6ff","on-tertiary-fixed": "#001945","background": "#f8faf9","tertiary-container": "#004aae","secondary": "#964900","surface-container-lowest": "#ffffff","on-secondary-container": "#642f00","surface-container-low": "#f2f4f3","on-tertiary": "#ffffff","surface-container": "#eceeed","on-error": "#ffffff","inverse-primary": "#8dd6a3","on-primary-fixed": "#00210e","on-background": "#191c1c","on-secondary-fixed-variant": "#723600","on-primary-fixed-variant": "#00522c","on-error-container": "#93000a","surface-variant": "#e1e3e2","primary-container": "#0d5c34","outline-variant": "#bfc9bf","inverse-on-surface": "#eff1f0" },
+                "borderRadius": {"DEFAULT": "1rem","lg": "1.5rem","xl": "2.5rem","full": "9999px"},
+                "spacing": {"base": "8px","margin-mobile": "16px","container-padding-sm": "16px","container-padding-md": "24px","margin-desktop": "48px","gutter": "20px"},
+                "fontFamily": {"label-md": ["Plus Jakarta Sans"],"headline-sm": ["Plus Jakarta Sans"],"body-md": ["Plus Jakarta Sans"],"body-lg": ["Plus Jakarta Sans"],"headline-lg": ["Plus Jakarta Sans"],"headline-md": ["Plus Jakarta Sans"]},
+                "fontSize": { "label-md": ["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],"body-lg": ["18px",{"lineHeight":"26px","fontWeight":"500"}],"headline-lg": ["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-md": ["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}] }
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; background-color: rgba(0,0,0,0.5); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="flex items-center justify-center min-h-screen overflow-y-auto p-4">
+
+    <!-- Modal Container -->
+    <div class="bg-white w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl m-4 transform transition-all relative">
+        <!-- Accent Bar -->
+        <div class="h-2 w-full bg-secondary-container"></div>
+        
+        <div class="p-8">
+            <div class="flex justify-between items-start mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-secondary-container/10 text-secondary-container flex items-center justify-center">
+                        <span class="material-symbols-outlined text-3xl">key</span>
+                    </div>
+                    <div>
+                        <h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Buka Kunci Batas Waktu</h2>
+                        <p class="font-label-md text-label-md text-on-surface-variant">Override Sistem Tahfidz BA</p>
+                    </div>
+                </div>
+                <a href="beranda.html" class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors flex items-center justify-center">
+                    <span class="material-symbols-outlined">close</span>
+                </a>
+            </div>
+
+            <!-- Form -->
+            <div class="space-y-6">
+                <!-- Select Student -->
+                <div>
+                    <label class="font-label-md text-label-md text-on-surface mb-2 block uppercase tracking-wider text-xs">Pilih Siswa</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
+                        <input type="text" id="search-siswa" class="w-full bg-surface-container-low border border-outline-variant rounded-xl pl-12 pr-4 py-3 font-body-md focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all" placeholder="Cari nama siswa..." oninput="searchSiswa(this.value)">
+                    </div>
+                    <div id="siswa-list" class="mt-3 space-y-2 max-h-40 overflow-y-auto">
+                        <p class="text-sm text-on-surface-variant">Memuat siswa...</p>
+                    </div>
+                    <div id="selected-siswa" class="flex flex-wrap gap-2 mt-3"></div>
+                </div>
+
+                <!-- Extend Time -->
+                <div>
+                    <label class="font-label-md text-label-md text-on-surface mb-2 block uppercase tracking-wider text-xs">Perpanjangan Waktu</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="selectDuration(this, 2)" class="py-3 px-2 border-2 border-outline-variant text-on-surface-variant rounded-xl font-bold hover:bg-surface-container transition-colors focus:border-secondary-container focus:text-secondary-container focus:bg-secondary-container/5 outline-none">+2 Jam</button>
+                        <button onclick="selectDuration(this, 4)" class="py-3 px-2 border-2 border-outline-variant text-on-surface-variant rounded-xl font-bold hover:bg-surface-container transition-colors focus:border-secondary-container focus:text-secondary-container focus:bg-secondary-container/5 outline-none">+4 Jam</button>
+                        <button onclick="selectDuration(this, 'esok')" class="py-3 px-2 border-2 border-secondary-container bg-secondary-container/5 text-secondary-container rounded-xl font-bold transition-colors focus:outline-none">Esok Pagi (07:00)</button>
+                        <button onclick="selectDuration(this, 0)" class="py-3 px-2 border-2 border-outline-variant text-on-surface-variant rounded-xl font-bold hover:bg-surface-container transition-colors focus:border-secondary-container focus:text-secondary-container focus:bg-secondary-container/5 outline-none">Custom</button>
+                    </div>
+                    <input type="datetime-local" id="manual-deadline" class="w-full bg-surface-container-low border border-outline-variant rounded-xl p-3 mt-3 hidden">
+                </div>
+
+                <!-- Reason -->
+                <div>
+                    <label class="font-label-md text-label-md text-on-surface mb-2 block uppercase tracking-wider text-xs">Alasan Keterlambatan (Opsional)</label>
+                    <textarea class="w-full bg-surface-container-low border border-outline-variant rounded-xl p-4 font-body-md focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all resize-none" rows="3" placeholder="Siswa sedang sakit..."></textarea>
+                </div>
+                
+                <!-- Info Alert -->
+                <div class="bg-tertiary-container/10 border border-tertiary-container/30 rounded-xl p-4 flex gap-3 items-start">
+                    <span class="material-symbols-outlined text-tertiary">info</span>
+                    <p class="font-body-md text-[14px] text-on-surface-variant">Membuka kunci batas waktu akan mengirimkan notifikasi ulang ke aplikasi Wali Murid bersangkutan.</p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-3">
+                <a href="beranda.html" class="w-full sm:flex-1 bg-surface-container-high text-on-surface py-4 rounded-xl font-bold hover:bg-surface-dim transition-colors text-center block">Batal</a>
+                <button onclick="submitPerpanjangan()" class="w-full sm:flex-[2] bg-secondary-container text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">lock_open</span> Buka Kunci Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let allSiswa = [];
+    let selectedSiswaId = null;
+    let selectedDuration = 24; // default 24 jam
+    let currentTugasId = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const params = new URLSearchParams(window.location.search);
+        currentTugasId = params.get('tugas_id');
+
+        // Load siswa yang belum setor
+        try {
+            const statsRes = await api.get('/api/guru/beranda-stats.php');
+            
+            // Auto-resolve tugas_id if not passed in query params
+            if (!currentTugasId && statsRes.data.tugas) {
+                currentTugasId = statsRes.data.tugas.id;
+            }
+            
+            if (statsRes.data.guru.kelas_id) {
+                const siswaRes = await api.get(`/api/admin/daftar-siswa.php?kelas_id=${statsRes.data.guru.kelas_id}`);
+                allSiswa = (siswaRes.data && Array.isArray(siswaRes.data.data)) ? siswaRes.data.data : [];
+                renderSiswaList(allSiswa);
+            }
+        } catch (err) {
+            console.error('Gagal memuat siswa:', err);
+        }
+    });
+
+    function renderSiswaList(siswa) {
+        const container = document.getElementById('siswa-list');
+        if (siswa.length === 0) {
+            container.innerHTML = '<p class="text-sm text-on-surface-variant">Tidak ada siswa ditemukan.</p>';
+            return;
+        }
+        container.innerHTML = siswa.map(s => `
+            <div onclick="selectSiswa(${s.id}, '${s.nama_lengkap}')" class="p-3 rounded-lg border border-outline-variant/30 hover:bg-surface-container cursor-pointer flex items-center gap-3 transition-colors ${selectedSiswaId === s.id ? 'bg-primary/10 border-primary' : ''}">
+                <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">${s.nama_lengkap.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()}</div>
+                <div><p class="font-bold text-sm">${s.nama_lengkap}</p><p class="text-[11px] text-on-surface-variant">NIS: ${s.nis}</p></div>
+            </div>
+        `).join('');
+    }
+
+    function searchSiswa(query) {
+        const filtered = allSiswa.filter(s => s.nama_lengkap.toLowerCase().includes(query.toLowerCase()));
+        renderSiswaList(filtered);
+    }
+
+    function selectSiswa(id, nama) {
+        selectedSiswaId = id;
+        document.getElementById('selected-siswa').innerHTML = `<span class="px-3 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-full text-[12px] font-bold">${nama}</span>`;
+        renderSiswaList(allSiswa.filter(s => s.nama_lengkap.toLowerCase().includes(document.getElementById('search-siswa').value.toLowerCase())));
+    }
+
+    function selectDuration(btn, jam) {
+        // Reset semua tombol
+        document.querySelectorAll('.grid.grid-cols-2 button').forEach(b => {
+            b.className = 'py-3 px-2 border-2 border-outline-variant text-on-surface-variant rounded-xl font-bold hover:bg-surface-container transition-colors focus:border-secondary-container focus:text-secondary-container focus:bg-secondary-container/5 outline-none';
+        });
+        btn.className = 'py-3 px-2 border-2 border-secondary-container bg-secondary-container/5 text-secondary-container rounded-xl font-bold transition-colors focus:outline-none';
+
+        const manualInput = document.getElementById('manual-deadline');
+        
+        if (jam === 'esok') {
+            // Set ke jam 07:00 besok
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(7, 0, 0, 0);
+            selectedDuration = tomorrow.toISOString().slice(0, 16);
+            manualInput.classList.add('hidden');
+        } else if (jam === 0) {
+            // Manual input
+            selectedDuration = null;
+            manualInput.classList.remove('hidden');
+        } else {
+            // Hitung dari sekarang + N jam
+            selectedDuration = jam;
+            manualInput.classList.add('hidden');
+        }
+    }
+
+    async function submitPerpanjangan() {
+        if (!selectedSiswaId) {
+            api.toast('Pilih siswa terlebih dahulu.', 'error');
+            return;
+        }
+
+        let deadlineBaru;
+        if (selectedDuration === null) {
+            // Custom datetime
+            deadlineBaru = document.getElementById('manual-deadline').value;
+            if (!deadlineBaru) {
+                api.toast('Pilih tanggal deadline baru.', 'error');
+                return;
+            }
+        } else if (typeof selectedDuration === 'string') {
+            // Sudah dalam format datetime (esok pagi)
+            deadlineBaru = selectedDuration;
+        } else {
+            // Hitung dari sekarang + N jam
+            const now = new Date();
+            now.setHours(now.getHours() + selectedDuration);
+            deadlineBaru = now.toISOString().slice(0, 19).replace('T', ' ');
+        }
+
+        if (!currentTugasId) {
+            api.toast('Tugas ID tidak ditemukan.', 'error');
+            return;
+        }
+
+        try {
+            await api.post('/api/guru/perpanjang-waktu.php', {
+                tugas_id: parseInt(currentTugasId),
+                siswa_id: selectedSiswaId,
+                deadline_baru: deadlineBaru,
+                alasan: document.querySelector('textarea').value.trim() || null
+            });
+            api.toast('Perpanjangan berhasil disimpan!', 'success');
+            setTimeout(() => window.location.href = 'beranda.html', 1500);
+        } catch (err) {
+            api.toast(err.message || 'Gagal menyimpan perpanjangan.', 'error');
+        }
+    }
+    </script>
+</body>
+</html>

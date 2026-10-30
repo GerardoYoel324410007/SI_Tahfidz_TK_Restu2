@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Dashboard Wali Kelas - Tahfidz BA Restu Z</title>
+    <meta name="description" content="Dashboard wali kelas untuk memantau setoran dan progres hafalan siswa.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": { "tertiary": "#003580","primary-fixed": "#a9f3be","on-primary": "#ffffff","surface-tint": "#226b41","surface-bright": "#f8faf9","on-primary-container": "#8ad2a0","secondary-container": "#fe8a29","secondary-fixed-dim": "#ffb786","surface-dim": "#d8dada","surface-container-highest": "#e1e3e2","primary": "#004323","error": "#ba1a1a","on-tertiary-container": "#aac1ff","on-surface": "#191c1c","inverse-surface": "#2e3131","primary-fixed-dim": "#8dd6a3","on-secondary": "#ffffff","surface": "#f8faf9","secondary-fixed": "#ffdcc6","surface-container-high": "#e6e9e8","on-surface-variant": "#404941","outline": "#707a70","on-tertiary-fixed-variant": "#00429c","on-secondary-fixed": "#311300","error-container": "#ffdad6","tertiary-fixed": "#d9e2ff","tertiary-fixed-dim": "#b0c6ff","on-tertiary-fixed": "#001945","background": "#f8faf9","tertiary-container": "#004aae","secondary": "#964900","surface-container-lowest": "#ffffff","on-secondary-container": "#642f00","surface-container-low": "#f2f4f3","on-tertiary": "#ffffff","surface-container": "#eceeed","on-error": "#ffffff","inverse-primary": "#8dd6a3","on-primary-fixed": "#00210e","on-background": "#191c1c","on-secondary-fixed-variant": "#723600","on-primary-fixed-variant": "#00522c","on-error-container": "#93000a","surface-variant": "#e1e3e2","primary-container": "#0d5c34","outline-variant": "#bfc9bf","inverse-on-surface": "#eff1f0" },
+                "borderRadius": {"DEFAULT": "1rem","lg": "1.5rem","xl": "2.5rem","full": "9999px"},
+                "spacing": {"base": "8px","margin-mobile": "16px","container-padding-sm": "16px","container-padding-md": "24px","margin-desktop": "48px","gutter": "20px"},
+                "fontFamily": {"label-md": ["Plus Jakarta Sans"],"headline-sm": ["Plus Jakarta Sans"],"body-md": ["Plus Jakarta Sans"],"body-lg": ["Plus Jakarta Sans"],"headline-lg": ["Plus Jakarta Sans"],"headline-md": ["Plus Jakarta Sans"]},
+                "fontSize": { "label-md": ["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],"body-lg": ["18px",{"lineHeight":"26px","fontWeight":"500"}],"headline-lg": ["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-md": ["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}] }
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .bg-mesh-accent { background-image: radial-gradient(at 0% 0%, rgba(0,67,35,0.05) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(0,53,128,0.05) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(150,73,0,0.05) 0px, transparent 50%); }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="bg-surface-bright text-on-surface bg-mesh-accent min-h-screen antialiased">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-primary shadow-[40px_0_60px_-15px_rgba(0,67,35,0.15)] flex-col py-8 z-50 transform transition-transform duration-300 -translate-x-full md:translate-x-0 hidden md:flex overflow-y-auto"></aside>
+
+    <!-- Main -->
+    <main class="ml-0 md:ml-72 min-h-screen w-full md:w-[calc(100%-18rem)] pb-32">
+        <!-- Top App Bar -->
+        <header class="h-20 w-full sticky top-0 z-40 bg-surface-bright/80 backdrop-blur-md shadow-sm flex justify-between items-center px-4 md:px-margin-desktop">
+            <div class="flex items-center gap-3">
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <!-- Desktop Collapse Button -->
+                <button id="desktop-collapse-btn" class="hidden md:flex p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant mr-2" title="Lipat Menu">
+                    <span class="material-symbols-outlined">menu_open</span>
+                </button>
+                <h2 class="font-headline-sm text-headline-sm font-bold text-on-surface" id="header-kelas-title">-</h2>
+                <div class="hidden lg:flex items-center bg-surface-container rounded-full px-4 py-2 ml-4">
+                    <span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+                    <input class="bg-transparent border-none focus:ring-0 text-body-md w-64" placeholder="Cari siswa..." type="text">
+                </div>
+            </div>
+            <div class="flex items-center gap-2 md:gap-4">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="font-label-md text-label-md text-on-surface" id="header-nama">-</p>
+                        <p class="text-[12px] text-on-surface-variant">Wali Kelas</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-sm border-2 border-primary-fixed" id="header-initials">-</div>
+                </div>
+                <button onclick="authGuard.logout()" class="bg-error text-on-error px-4 py-2 rounded-full text-xs md:text-sm font-bold active:opacity-80 transition-all ml-1 md:ml-2">Logout</button>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="p-margin-mobile md:p-margin-desktop">
+            <!-- Welcome -->
+            <div class="mb-10">
+                <h3 class="font-headline-lg text-headline-lg text-primary mb-1" id="welcome-msg">Selamat Datang Kembali</h3>
+                <p class="font-body-lg text-body-lg text-on-surface-variant mt-1" id="kelas-info">-</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="bg-white p-6 rounded-lg shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05)] border-l-4 border-primary flex items-center justify-between transition-all hover:shadow-lg">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 bg-primary/10 text-primary rounded-full flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[32px]">how_to_reg</span>
+                        </div>
+                        <div>
+                            <p class="text-on-surface-variant text-label-md font-label-md">Sudah Setor</p>
+                            <p class="text-headline-md font-headline-md text-primary" id="stat-sudah">-</p>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary-fixed text-on-primary-fixed text-[10px] font-bold rounded-full mt-1" id="stat-persen">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05)] border-l-4 border-tertiary flex items-center justify-between transition-all hover:shadow-lg">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 bg-tertiary/10 text-tertiary rounded-full flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[32px]">rate_review</span>
+                        </div>
+                        <div>
+                            <p class="text-on-surface-variant text-label-md font-label-md">Menunggu Koreksi</p>
+                            <p class="text-headline-md font-headline-md text-tertiary" id="stat-menunggu">-</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05)] border-l-4 border-secondary flex items-center justify-between transition-all hover:shadow-lg">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 bg-secondary/10 text-secondary rounded-full flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[32px] animate-pulse">timer</span>
+                        </div>
+                        <div>
+                            <p class="text-on-surface-variant text-label-md font-label-md">Batas Pengumpulan</p>
+                            <p class="text-headline-md font-headline-md text-secondary" id="countdown">--:--:--</p>
+                            <p class="text-[12px] text-on-surface-variant mt-1">Selesai 23.59 WIB</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="flex flex-col sm:flex-row gap-4 mb-12">
+                <a href="target.html" class="w-full sm:w-auto bg-secondary-container text-on-secondary-container py-3 px-8 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95 text-center">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    Buat Target Hafalan Baru
+                </a>
+                <a href="modal-perpanjangan.html" class="w-full sm:w-auto bg-surface-container-highest text-on-surface py-3 px-8 rounded-lg font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95 text-center">
+                    <span class="material-symbols-outlined">lock_open</span>
+                    Buka Kunci Batas Waktu
+                </a>
+            </div>
+
+            <!-- Student Queue Table -->
+            <section class="bg-surface-container-lowest rounded-lg shadow-[0_20px_50px_rgba(0,67,35,0.05)] overflow-hidden">
+                <div class="p-4 md:p-8 border-b border-outline-variant flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h4 class="font-headline-sm text-headline-sm text-primary">Tabel Antrean Setoran (Urgent List)</h4>
+                        <p class="font-body-md text-body-md text-on-surface-variant mt-1">Siswa yang baru saja mengumpulkan hafalan</p>
+                    </div>
+                    <a href="koreksi.html" class="text-primary font-bold flex items-center gap-1 hover:underline">
+                        Lihat Semua <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                </div>
+                <div class="p-4 md:p-8">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-separate border-spacing-0">
+                            <thead>
+                                <tr class="bg-surface-container-low">
+                                    <th class="px-6 py-4 rounded-tl-lg font-label-md text-label-md text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Siswa</th>
+                                    <th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Surah / Ayat</th>
+                                    <th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Waktu Masuk</th>
+                                    <th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Status</th>
+                                    <th class="px-6 py-4 rounded-tr-lg font-label-md text-label-md text-on-surface-variant uppercase tracking-wider border-b border-outline-variant text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/30" id="antrian-body">
+                                <tr><td colspan="5" class="px-6 py-8 text-center text-on-surface-variant">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bottom Banner -->
+            <div class="mt-12 p-6 md:p-10 bg-primary rounded-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between text-white shadow-2xl gap-6">
+                <div class="z-10 relative w-full md:w-auto">
+                    <h5 class="text-headline-md font-headline-md mb-2">Tips Hari Ini: Motivasi Hafalan</h5>
+                    <p class="text-body-md opacity-80 max-w-lg">Gunakan apresiasi verbal dan stiker untuk setiap hafalan yang lancar. Konsistensi kecil hari ini membangun karakter hafidz yang kuat di masa depan.</p>
+                </div>
+                <div class="absolute right-0 top-0 w-full h-full opacity-10 pointer-events-none">
+                    <svg height="100%" width="100%">
+                        <pattern height="60" id="pw" patternUnits="userSpaceOnUse" width="100" x="0" y="0">
+                            <path d="M0 30 Q 25 10 50 30 Q 75 50 100 30" fill="none" stroke="white" stroke-width="2"></path>
+                        </pattern>
+                        <rect fill="url(#pw)" height="100%" width="100%"></rect>
+                    </svg>
+            <!-- Section Ganti Password -->
+            <div id="ganti-password-section"></div>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await authGuard.protect('guru');
+        if (!user) return;
+        let deadlineTime = null;
+
+        // Load beranda stats
+        try {
+            const res = await api.get('/api/guru/beranda-stats.php');
+            const d = res.data;
+
+            document.getElementById('welcome-msg').textContent = `Selamat Datang Kembali, ${d.guru.nama}`;
+            document.getElementById('kelas-info').textContent = `Ruang Kelas: ${d.guru.kelas}`;
+            document.getElementById('header-kelas-title').textContent = d.guru.kelas;
+            document.getElementById('header-nama').textContent = d.guru.nama;
+            const initials = d.guru.nama.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+            document.getElementById('header-initials').textContent = initials;
+
+            const s = d.statistik;
+            document.getElementById('stat-sudah').textContent = s.sudah_kumpul + '/' + s.total_siswa;
+            const pct = s.total_siswa > 0 ? Math.round((s.sudah_kumpul / s.total_siswa) * 100) : 0;
+            document.getElementById('stat-persen').innerHTML = `<span class="material-symbols-outlined text-[12px]">trending_up</span> ${pct}%`;
+            document.getElementById('stat-menunggu').textContent = s.menunggu;
+
+            if (d.deadline) {
+                deadlineTime = new Date(d.deadline);
+            }
+
+            const targetLink = document.querySelector('a[href="target.html"]');
+            if (targetLink && d.guru && d.guru.kelas_id) {
+                targetLink.href = `target.html?kelas_id=${d.guru.kelas_id}`;
+            }
+        } catch (err) {
+            console.error('Gagal memuat stats:', err);
+        }
+
+        // Load antrian setoran
+        try {
+            const res = await api.get('/api/guru/antrian-setoran.php');
+            const tbody = document.getElementById('antrian-body');
+            if (res.data && res.data.length > 0) {
+                tbody.innerHTML = res.data.map(s => {
+                    const initials = (s.nama_panggilan || s.nama_lengkap).split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+                    const waktu = new Date(s.waktu_kirim.replace(' ', 'T') + 'Z');
+                    const diff = Math.round((new Date() - waktu) / 60000);
+                    const jamMasuk = waktu.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit', timeZone: 'Asia/Jakarta'}).replace('.', ':');
+                    const tglMasuk = waktu.toLocaleDateString('id-ID', {day:'numeric', month:'short', timeZone: 'Asia/Jakarta'});
+                    const waktuText = diff < 60 
+                        ? `${tglMasuk}, ${jamMasuk} WIB (${diff} Menit Lalu)` 
+                        : `${tglMasuk}, ${jamMasuk} WIB (${Math.round(diff/60)} Jam Lalu)`;
+                    return `
+                    <tr class="hover:bg-surface-bright transition-colors group">
+                        <td class="px-6 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">${initials}</div>
+                                <div>
+                                    <p class="font-body-md text-body-md text-on-surface font-semibold">${s.nama_lengkap}</p>
+                                    <p class="text-[12px] text-on-surface-variant">NIS: ${s.nis}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5 font-body-md text-on-surface">${s.nama_surat}: ${s.ayat_dari}-${s.ayat_sampai}</td>
+                        <td class="px-6 py-5 text-on-surface-variant">${waktuText}</td>
+                        <td class="px-6 py-5">
+                            <span class="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed rounded-full text-label-md font-label-md">Menunggu</span>
+                        </td>
+                        <td class="px-6 py-5 text-right">
+                            <a href="koreksi.html?setoran_id=${s.id}" class="bg-primary text-on-primary px-6 py-2 rounded-full text-sm font-bold shadow-md hover:shadow-lg transition-all active:scale-95 inline-block text-center">Koreksi</a>
+                        </td>
+                    </tr>`;
+                }).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-on-surface-variant">Tidak ada setoran menunggu hari ini</td></tr>';
+            }
+        } catch (err) {
+            console.error('Gagal memuat antrian:', err);
+        }
+
+        // Countdown timer
+        function updateCountdown() {
+            if (!deadlineTime) return;
+            const now = new Date();
+            const diff = deadlineTime - now;
+            if (diff > 0) {
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                document.getElementById('countdown').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            } else {
+                document.getElementById('countdown').textContent = '00:00:00';
+            }
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // ── Ganti Password ──────────────────────────────────────────────────
+        await loadStatusPermintaanPassword();
+    });
+
+    async function loadStatusPermintaanPassword() {
+        try {
+            const res = await api.get('/api/auth/status-permintaan-password.php');
+            const p   = res.data?.permintaan;
+            renderStatusPassword(p);
+        } catch(e) { console.error('Gagal cek status password', e); }
+    }
+
+    function renderStatusPassword(p) {
+        const sec = document.getElementById('ganti-password-section');
+        if (!sec) return;
+
+        if (!p || p.status === 'disetujui' || p.status === 'ditolak') {
+            // Tampilkan form pengajuan
+            const alasanHtml = (p && p.status === 'ditolak' && p.alasan_tolak)
+                ? `<div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                     <strong>Permintaan sebelumnya ditolak:</strong> ${p.alasan_tolak}
+                     <br><span class="text-xs text-on-surface-variant">Anda dapat mengajukan permintaan baru.</span>
+                   </div>` : '';
+
+            const berhasilHtml = (p && p.status === 'disetujui')
+                ? `<div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
+                     <strong>Password berhasil diubah</strong> oleh Admin. Anda dapat mengajukan perubahan baru jika perlu.
+                   </div>` : '';
+
+            sec.innerHTML = `
+                <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-6 mt-8 border border-outline-variant/20">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings:'FILL' 0;">lock_reset</span>
+                        <div>
+                            <h4 class="font-semibold text-on-surface">Ganti Password</h4>
+                            <p class="text-xs text-on-surface-variant">Permintaan akan ditinjau oleh Admin sebelum berlaku</p>
+                        </div>
+                    </div>
+                    ${berhasilHtml}${alasanHtml}
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-on-surface mb-1">Password Baru <span class="text-error">*</span></label>
+                            <input type="password" id="pp-baru" placeholder="Minimal 8 karakter" class="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-on-surface mb-1">Konfirmasi Password <span class="text-error">*</span></label>
+                            <input type="password" id="pp-konfirmasi" placeholder="Ulangi password baru" class="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                        </div>
+                        <p class="text-xs text-on-surface-variant">Password tidak akan langsung aktif — Admin perlu menyetujuinya terlebih dahulu.</p>
+                        <button onclick="ajukanGantiPassword()" id="btn-ajukan-pp" class="w-full py-3 bg-primary text-white rounded-lg font-bold text-sm hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-sm">send</span> Kirim Permintaan
+                        </button>
+                    </div>
+                </div>`;
+        } else if (p.status === 'menunggu') {
+            const waktu = new Date(p.created_at.replace(' ', 'T'));
+            const waktuStr = waktu.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+            sec.innerHTML = `
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 mt-8 flex items-start gap-4">
+                    <span class="material-symbols-outlined text-amber-600 text-3xl mt-0.5" style="font-variation-settings:'FILL' 1;">hourglass_empty</span>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-amber-800">Permintaan Sedang Menunggu</h4>
+                        <p class="text-sm text-amber-700 mt-1">Permintaan ganti password Anda sedang menunggu persetujuan Admin.</p>
+                        <p class="text-xs text-amber-600 mt-2">Diajukan: ${waktuStr}</p>
+                    </div>
+                </div>`;
+        }
+    }
+
+    async function ajukanGantiPassword() {
+        const baru       = document.getElementById('pp-baru').value;
+        const konfirmasi = document.getElementById('pp-konfirmasi').value;
+        const btn        = document.getElementById('btn-ajukan-pp');
+
+        if (!baru || !konfirmasi) { alert('Semua field wajib diisi.'); return; }
+        if (baru.length < 8)      { alert('Password minimal 8 karakter.'); return; }
+        if (baru !== konfirmasi)  { alert('Konfirmasi password tidak cocok.'); return; }
+
+        btn.disabled = true;
+        btn.textContent = 'Mengirim...';
+        try {
+            await api.post('/api/auth/ajukan-ganti-password.php', { password_baru: baru, konfirmasi });
+            await loadStatusPermintaanPassword();
+        } catch(e) {
+            alert('Gagal: ' + (e.message || 'Error tidak diketahui'));
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-sm">send</span> Kirim Permintaan';
+        }
+    }
+    </script>
+
+</body>
+</html>
+

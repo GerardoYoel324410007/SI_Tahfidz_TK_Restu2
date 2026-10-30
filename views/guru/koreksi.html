@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Ruang Koreksi Interaktif - Tahfidz BA Restu Z</title>
+    <meta name="description" content="Ruang koreksi hafalan siswa untuk guru tahfidz.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": { "tertiary": "#003580","primary-fixed": "#a9f3be","on-primary": "#ffffff","surface-tint": "#226b41","surface-bright": "#f8faf9","on-primary-container": "#8ad2a0","secondary-container": "#fe8a29","secondary-fixed-dim": "#ffb786","surface-dim": "#d8dada","surface-container-highest": "#e1e3e2","primary": "#004323","error": "#ba1a1a","on-tertiary-container": "#aac1ff","on-surface": "#191c1c","inverse-surface": "#2e3131","primary-fixed-dim": "#8dd6a3","on-secondary": "#ffffff","surface": "#f8faf9","secondary-fixed": "#ffdcc6","surface-container-high": "#e6e9e8","on-surface-variant": "#404941","outline": "#707a70","on-tertiary-fixed-variant": "#00429c","on-secondary-fixed": "#311300","error-container": "#ffdad6","tertiary-fixed": "#d9e2ff","tertiary-fixed-dim": "#b0c6ff","on-tertiary-fixed": "#001945","background": "#f8faf9","tertiary-container": "#004aae","secondary": "#964900","surface-container-lowest": "#ffffff","on-secondary-container": "#642f00","surface-container-low": "#f2f4f3","on-tertiary": "#ffffff","surface-container": "#eceeed","on-error": "#ffffff","inverse-primary": "#8dd6a3","on-primary-fixed": "#00210e","on-background": "#191c1c","on-secondary-fixed-variant": "#723600","on-primary-fixed-variant": "#00522c","on-error-container": "#93000a","surface-variant": "#e1e3e2","primary-container": "#0d5c34","outline-variant": "#bfc9bf","inverse-on-surface": "#eff1f0" },
+                "borderRadius": {"DEFAULT": "1rem","lg": "1.5rem","xl": "2.5rem","full": "9999px"},
+                "spacing": {"base": "8px","margin-mobile": "16px","container-padding-sm": "16px","container-padding-md": "24px","margin-desktop": "48px","gutter": "20px"},
+                "fontFamily": {"label-md": ["Plus Jakarta Sans"],"headline-sm": ["Plus Jakarta Sans"],"body-md": ["Plus Jakarta Sans"],"body-lg": ["Plus Jakarta Sans"],"headline-lg": ["Plus Jakarta Sans"],"headline-md": ["Plus Jakarta Sans"]},
+                "fontSize": { "label-md": ["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],"body-lg": ["18px",{"lineHeight":"26px","fontWeight":"500"}],"headline-lg": ["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-md": ["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}] }
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: max(884px, 100vh); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .bg-mesh-accent { background-image: radial-gradient(at 0% 0%, rgba(0,67,35,0.05) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(0,53,128,0.05) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(150,73,0,0.05) 0px, transparent 50%); }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="bg-surface-bright text-on-surface bg-mesh-accent antialiased flex flex-col lg:flex-row lg:h-screen lg:overflow-hidden min-h-screen">
+    <!-- Global Navigation Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-primary shadow-xl flex-col py-8 z-[60] transform transition-transform duration-300 -translate-x-full hidden overflow-y-auto">
+    </aside>
+
+    <!-- Sidebar Antrean Koreksi -->
+    <aside id="antrean-panel" class="fixed left-0 top-0 h-full w-80 bg-surface-container-lowest border-r border-outline-variant/50 flex flex-col shadow-lg z-40 lg:relative lg:h-full transform transition-transform duration-300 -translate-x-full lg:translate-x-0 hidden lg:flex overflow-y-auto shrink-0">
+            <div class="p-6 border-b border-outline-variant/30 flex items-center justify-between shrink-0">
+                <a href="beranda.html" class="flex items-center gap-2 text-primary font-bold hover:underline">
+                    <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+                    <span>Kembali</span>
+                </a>
+                <div class="w-10 h-10 bg-white rounded-full overflow-hidden flex items-center justify-center p-1 border border-primary/20">
+                    <img alt="Logo Restu Z" class="w-full h-full object-contain" src="../../LOGO Restu 2 Excellent.png">
+                </div>
+            </div>
+            
+            <div class="p-6 flex-1 flex flex-col min-h-0">
+                <div class="mb-4">
+                    <h3 class="font-headline-sm text-headline-sm text-primary mb-3">Antrean Koreksi</h3>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+                            <div id="progress-bar" class="h-full bg-primary rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <span id="progress-text" class="text-label-md text-on-surface-variant whitespace-nowrap">0/0</span>
+                    </div>
+                </div>
+                <!-- Queue List -->
+                <div id="antrean-list" class="space-y-3 overflow-y-auto max-h-[calc(100vh-200px)] pr-2 flex-1">
+                    <p class="text-center text-on-surface-variant py-4">Memuat antrean...</p>
+                </div>
+            </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex flex-col lg:h-full bg-surface-container-lowest relative lg:overflow-hidden min-h-0">
+        <!-- Student Info Header -->
+        <header class="h-24 px-4 md:px-8 border-b border-outline-variant/30 flex items-center justify-between bg-white z-10 shrink-0">
+            <div class="flex items-center gap-3 md:gap-5">
+                <button id="mobile-menu-btn" class="p-2 hover:bg-surface-container rounded-full transition-all text-on-surface-variant flex-shrink-0" title="Menu Navigasi">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <button id="mobile-queue-btn" class="lg:hidden p-2 hover:bg-surface-container rounded-full transition-all text-on-surface-variant flex-shrink-0" title="Antrean Koreksi">
+                    <span class="material-symbols-outlined">format_list_bulleted</span>
+                </button>
+                <div id="student-avatar-container" class="relative flex-shrink-0 hidden">
+                    <img id="student-photo" alt="Student Photo" class="w-14 h-14 rounded-full border-2 border-primary object-cover hidden" src="">
+                    <div id="student-initials" class="w-14 h-14 rounded-full border-2 border-primary bg-primary/10 text-primary flex items-center justify-center font-bold text-lg hidden">-</div>
+                    <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-secondary text-white rounded-full flex items-center justify-center border-2 border-white text-[10px] font-bold" title="Prioritas">!</div>
+                </div>
+                <div>
+                    <h2 class="font-headline-md text-headline-sm md:text-headline-md text-primary font-bold truncate max-w-[150px] sm:max-w-xs">-</h2>
+                    <p id="student-class-setoran-count" class="font-label-md text-label-md text-on-surface-variant mt-1">-</p>
+                </div>
+            </div>
+            <div class="flex gap-2 md:gap-4 items-center">
+                <button id="btn-riwayat-siswa" onclick="viewStudentHistory()" class="flex items-center gap-1 md:gap-2 bg-surface-container text-on-surface px-3 md:px-4 py-2 rounded-full font-label-md text-xs md:text-sm hover:bg-surface-container-high transition-colors hidden">
+                    <span class="material-symbols-outlined text-[18px] md:text-[20px]">history</span> <span class="hidden xs:inline">Riwayat</span>
+                </button>
+                <div class="h-10 w-px bg-outline-variant"></div>
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="font-label-md text-label-md text-on-surface" id="header-nama">-</p>
+                        <p class="text-[12px] text-on-surface-variant">Wali Kelas</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-sm border-2 border-primary-fixed" id="header-initials">-</div>
+                </div>
+                <button onclick="authGuard.logout()" class="bg-error text-on-error px-4 py-2 rounded-full text-xs md:text-sm font-bold active:opacity-80 transition-all ml-1 md:ml-2">Logout</button>
+            </div>
+        </header>
+
+        <!-- Wraps the correction header and area -->
+        <div id="correction-workspace" class="flex-1 flex flex-col lg:h-full lg:overflow-hidden min-h-0 hidden">
+            <!-- Correction Area -->
+            <div class="flex-1 lg:overflow-y-auto p-4 md:p-8 pb-32 flex flex-col lg:flex-row gap-8">
+            <!-- Left: Audio Player & Transcript -->
+            <div class="flex-1 flex flex-col gap-6 max-w-2xl">
+                <!-- Submission Info -->
+                <div class="bg-primary-fixed/20 border-l-4 border-primary p-4 rounded-r-lg">
+                    <p class="font-label-md text-label-md text-primary uppercase tracking-wider">Tugas Hafalan</p>
+                    <p class="font-headline-sm text-headline-sm text-on-surface mt-1" id="tugas-info">—</p>
+                </div>
+
+                <!-- Main Audio Player (Vibrant) -->
+                <div class="bg-white rounded-2xl p-8 shadow-[0_20px_50px_-20px_rgba(0,67,35,0.15)] border border-primary/10">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-3">
+                            <div class="p-3 bg-secondary-container/20 text-secondary rounded-full">
+                                <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">mic</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-label-md text-on-surface">Rekaman Siswa</p>
+                                <p class="text-[12px] text-on-surface-variant" id="audio-info">Pilih setoran dari antrian</p>
+                            </div>
+                        </div>
+                        <!-- Speed Control -->
+                        <div class="bg-surface-container rounded-full flex items-center p-1">
+                            <button onclick="setPlaybackSpeed(0.5, this)" class="speed-btn px-3 py-1 rounded-full text-[12px] font-bold text-on-surface-variant hover:bg-white transition-colors" data-speed="0.5">0.5x</button>
+                            <button onclick="setPlaybackSpeed(1, this)" class="speed-btn px-3 py-1 rounded-full text-[12px] font-bold bg-white text-primary shadow-sm transition-colors" data-speed="1">1x</button>
+                            <button onclick="setPlaybackSpeed(1.5, this)" class="speed-btn px-3 py-1 rounded-full text-[12px] font-bold text-on-surface-variant hover:bg-white transition-colors" data-speed="1.5">1.5x</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Waveform/Progress -->
+                    <div id="waveform-container" class="mb-8 relative flex items-center h-16 group cursor-pointer" onclick="seekAudio(event)">
+                        <!-- Simulated Waveform -->
+                        <div class="absolute inset-0 flex items-center gap-[2px] opacity-30 px-4">
+                            <div class="h-2 w-1 bg-primary rounded-full"></div><div class="h-6 w-1 bg-primary rounded-full"></div><div class="h-10 w-1 bg-primary rounded-full"></div><div class="h-4 w-1 bg-primary rounded-full"></div><div class="h-8 w-1 bg-primary rounded-full"></div><div class="h-12 w-1 bg-primary rounded-full"></div><div class="h-5 w-1 bg-primary rounded-full"></div><div class="h-3 w-1 bg-primary rounded-full"></div><div class="h-7 w-1 bg-primary rounded-full"></div><div class="h-9 w-1 bg-primary rounded-full"></div><div class="h-4 w-1 bg-primary rounded-full"></div>
+                        </div>
+                        <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden z-10">
+                            <div id="audio-progress-bar" class="h-full bg-primary rounded-full w-0 relative transition-all duration-100">
+                                <div class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-primary rounded-full shadow-md scale-0 group-hover:scale-100 transition-transform"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="flex items-center justify-between">
+                        <span id="audio-current-time" class="font-body-md text-on-surface-variant w-12">00:00</span>
+                        <div class="flex items-center gap-6">
+                            <button onclick="replayAudio()" class="text-on-surface-variant hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined text-[32px]">replay_10</span>
+                            </button>
+                            <button id="btn-play-audio" onclick="toggleAudioPlay()" class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary-container active:scale-95 transition-all">
+                                <span class="material-symbols-outlined text-[40px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                            </button>
+                            <button onclick="forwardAudio()" class="text-on-surface-variant hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined text-[32px]">forward_10</span>
+                            </button>
+                        </div>
+                        <span id="audio-duration" class="font-body-md text-on-surface-variant text-right w-12">00:00</span>
+                    </div>
+                </div>
+
+                <!-- Text Reference (Al-Quran View) -->
+                <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 relative">
+                    <h4 class="font-label-md text-label-md text-tertiary mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">menu_book</span> Referensi Teks
+                    </h4>
+                    <div id="quran-reference-text" class="text-right font-headline-md leading-[2.5] text-on-surface bg-white p-6 rounded-xl shadow-inner text-2xl" dir="rtl" lang="ar">
+                        -
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Evaluation Form -->
+            <div class="w-full lg:w-[400px] flex flex-col bg-white rounded-2xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] border border-outline-variant/20 lg:h-full lg:overflow-hidden shrink-0">
+                <div class="p-6 border-b border-outline-variant/30 bg-surface-bright flex justify-between items-center">
+                    <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Form Evaluasi</h3>
+                    <div class="flex gap-2">
+                        <button onclick="submitKoreksi('perbaiki')" class="bg-error/10 text-error px-3 py-1 rounded-full font-bold text-[12px] hover:bg-error/20 transition-colors">Perbaiki</button>
+                        <button onclick="submitKoreksi('diterima')" class="bg-primary/10 text-primary px-3 py-1 rounded-full font-bold text-[12px] border border-primary hover:bg-primary hover:text-white transition-colors">Lulus</button>
+                    </div>
+                </div>
+                
+                <div class="p-6 lg:overflow-y-auto flex-1 space-y-6">
+                    <!-- Penilaian BB/MB/BSH/BSB (Skala TK Standar) -->
+                    <div class="space-y-3">
+                        <p class="font-label-md text-on-surface mb-1">Penilaian Hafalan <span class="text-error">*</span></p>
+                        <p class="text-xs text-on-surface-variant mb-3">Pilih tingkat perkembangan sesuai kemampuan anak</p>
+
+                        <div class="grid grid-cols-2 gap-3" id="nilai-selector">
+                            <!-- BB -->
+                            <button onclick="selectNilai(1,'BB')" id="btn-nilai-BB"
+                                class="nilai-btn relative p-4 rounded-xl border-2 border-outline-variant bg-surface-container-low text-left transition-all hover:border-red-300 hover:bg-red-50 group">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-2xl">⭐</span>
+                                    <span class="font-black text-lg text-red-600">BB</span>
+                                </div>
+                                <p class="font-semibold text-xs text-on-surface">Belum Berkembang</p>
+                                <p class="text-[11px] text-on-surface-variant mt-0.5">Diam / belum mau melafalkan</p>
+                            </button>
+
+                            <!-- MB -->
+                            <button onclick="selectNilai(2,'MB')" id="btn-nilai-MB"
+                                class="nilai-btn relative p-4 rounded-xl border-2 border-outline-variant bg-surface-container-low text-left transition-all hover:border-amber-300 hover:bg-amber-50 group">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-2xl">⭐⭐</span>
+                                    <span class="font-black text-lg text-amber-600">MB</span>
+                                </div>
+                                <p class="font-semibold text-xs text-on-surface">Mulai Berkembang</p>
+                                <p class="text-[11px] text-on-surface-variant mt-0.5">Bisa tapi masih terbata-bata</p>
+                            </button>
+
+                            <!-- BSH -->
+                            <button onclick="selectNilai(3,'BSH')" id="btn-nilai-BSH"
+                                class="nilai-btn relative p-4 rounded-xl border-2 border-outline-variant bg-surface-container-low text-left transition-all hover:border-blue-300 hover:bg-blue-50 group">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-2xl">⭐⭐⭐</span>
+                                    <span class="font-black text-lg text-blue-600">BSH</span>
+                                </div>
+                                <p class="font-semibold text-xs text-on-surface">Berkembang Sesuai Harapan</p>
+                                <p class="text-[11px] text-on-surface-variant mt-0.5">Sudah bagus sesuai standar</p>
+                            </button>
+
+                            <!-- BSB -->
+                            <button onclick="selectNilai(4,'BSB')" id="btn-nilai-BSB"
+                                class="nilai-btn relative p-4 rounded-xl border-2 border-outline-variant bg-surface-container-low text-left transition-all hover:border-green-300 hover:bg-green-50 group">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-2xl">⭐⭐⭐⭐</span>
+                                    <span class="font-black text-lg text-green-700">BSB</span>
+                                </div>
+                                <p class="font-semibold text-xs text-on-surface">Berkembang Sangat Baik</p>
+                                <p class="text-[11px] text-on-surface-variant mt-0.5">Sangat bagus &amp; lancar</p>
+                            </button>
+                        </div>
+
+                        <input type="hidden" id="nilai-poin" value="">
+                        <input type="hidden" id="nilai-label" value="">
+                    </div>
+
+                    <!-- Quick Tags -->
+                    <div>
+                        <p class="font-label-md text-on-surface mb-3">Tandai Masalah Umum</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-surface-container hover:bg-tertiary/10 hover:text-tertiary hover:border-tertiary border border-transparent rounded-full text-[12px] font-bold cursor-pointer transition-colors text-on-surface-variant">Gunnah kurang</span>
+                            <span class="px-3 py-1 bg-surface-container hover:bg-tertiary/10 hover:text-tertiary hover:border-tertiary border border-transparent rounded-full text-[12px] font-bold cursor-pointer transition-colors text-on-surface-variant">Mad tidak pas</span>
+                            <span class="px-3 py-1 bg-tertiary/10 text-tertiary border border-tertiary rounded-full text-[12px] font-bold cursor-pointer transition-colors">Makhraj Sin/Shad</span>
+                            <span class="px-3 py-1 bg-surface-container hover:bg-tertiary/10 hover:text-tertiary hover:border-tertiary border border-transparent rounded-full text-[12px] font-bold cursor-pointer transition-colors text-on-surface-variant">Kurang lancar</span>
+                        </div>
+                    </div>
+
+                    <!-- Voice Note / Text Feedback -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="font-label-md text-on-surface">Catatan Pribadi</p>
+                            <button id="btn-mic-notes" onclick="toggleSpeechRecognition()" class="text-secondary hover:bg-secondary/10 p-1 rounded transition-colors" title="Rekam Suara">
+                                <span class="material-symbols-outlined text-[20px]">mic</span>
+                            </button>
+                        </div>
+                        <textarea id="koreksi-catatan" class="w-full h-32 bg-surface-container-low border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-xl p-4 font-body-md text-on-surface resize-none transition-all" placeholder="Ketik catatan untuk wali murid..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Footer Submit -->
+                <div class="p-6 border-t border-outline-variant/30 bg-surface-bright flex flex-col sm:flex-row gap-3">
+                    <button onclick="saveDraftKoreksi()" class="w-full sm:flex-1 bg-surface-container text-on-surface font-bold py-3 rounded-lg hover:bg-surface-container-high transition-colors">Simpan Draft</button>
+                    <div class="flex gap-3 w-full sm:flex-[2]">
+                        <button onclick="submitKoreksi('diterima')" class="flex-1 bg-primary text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[20px]">check</span> TERIMA
+                        </button>
+                        <button onclick="submitKoreksi('perbaiki')" class="flex-1 bg-error text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[20px]">close</span> PERBAIKI
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State Placeholder -->
+        <div id="empty-state" class="flex-1 flex flex-col items-center justify-center p-8 text-center bg-surface-bright">
+            <span class="material-symbols-outlined text-[64px] text-primary/30 mb-4" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            <h3 class="text-headline-sm font-bold text-on-surface">Tidak Ada Setoran Aktif</h3>
+            <p class="text-body-md text-on-surface-variant mt-2 max-w-sm">Silakan pilih siswa dari antrean di sebelah kiri untuk mulai melakukan koreksi hafalan.</p>
+        </div>
+    </main>
+
+    <script>
+    let currentSetoranId = null;
+    let currentAudio = null;
+    let recognition = null;
+    let isRecognizing = false;
+
+    function toggleSpeechRecognition() {
+        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!window.SpeechRecognition) {
+            api.toast('Browser Anda tidak mendukung Web Speech API (Speech Recognition).', 'warning');
+            return;
+        }
+
+        const micBtn = document.getElementById('btn-mic-notes');
+        const micIcon = micBtn.querySelector('span');
+        const textarea = document.getElementById('koreksi-catatan');
+
+        if (isRecognizing) {
+            recognition.stop();
+            return;
+        }
+
+        if (!recognition) {
+            recognition = new window.SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            recognition.lang = 'id-ID';
+
+            recognition.onstart = () => {
+                isRecognizing = true;
+                micIcon.textContent = 'stop';
+                micIcon.classList.add('text-error', 'animate-pulse');
+                api.toast('Mulai mendengarkan suara...', 'info');
+            };
+
+            recognition.onend = () => {
+                isRecognizing = false;
+                micIcon.textContent = 'mic';
+                micIcon.classList.remove('text-error', 'animate-pulse');
+                api.toast('Berhenti mendengarkan suara.', 'info');
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                api.toast('Error perekaman suara: ' + event.error, 'error');
+            };
+
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    }
+                }
+                if (finalTranscript) {
+                    const startSpace = textarea.value.length > 0 && !textarea.value.endsWith(' ') ? ' ' : '';
+                    textarea.value += startSpace + finalTranscript;
+                }
+            };
+        }
+
+        recognition.start();
+    }
+
+    function setPlaybackSpeed(speed, btn) {
+        if (currentAudio) {
+            currentAudio.playbackRate = speed;
+        }
+        
+        // Update UI tombol
+        document.querySelectorAll('.speed-btn').forEach(b => {
+            b.className = 'speed-btn px-3 py-1 rounded-full text-[12px] font-bold text-on-surface-variant hover:bg-white transition-colors';
+        });
+        btn.className = 'speed-btn px-3 py-1 rounded-full text-[12px] font-bold bg-white text-primary shadow-sm transition-colors';
+    }
+
+    function resetHeaderToDefault() {
+        const avatarContainer = document.getElementById('student-avatar-container');
+        if (avatarContainer) {
+            avatarContainer.classList.add('hidden');
+        }
+        const historyBtn = document.getElementById('btn-riwayat-siswa');
+        if (historyBtn) {
+            historyBtn.classList.add('hidden');
+        }
+        const titleEl = document.querySelector('h2.font-headline-md');
+        if (titleEl) {
+            titleEl.textContent = 'Ruang Koreksi Setoran';
+        }
+        const subtitleEl = document.getElementById('student-class-setoran-count');
+        if (subtitleEl) {
+            subtitleEl.textContent = 'Pilih siswa di antrean untuk memulai';
+        }
+    }
+
+    function viewStudentHistory() {
+        if (currentSetoranId) {
+            window.location.href = 'progres-hafalan.html';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await authGuard.protect('guru');
+        if (!user) return;
+        authGuard.initUserData(user);
+
+        const params = new URLSearchParams(window.location.search);
+        currentSetoranId = params.get('setoran_id');
+
+        if (currentSetoranId) {
+            await loadSetoran(currentSetoranId);
+        } else {
+            document.getElementById('correction-workspace').classList.add('hidden');
+            document.getElementById('empty-state').classList.remove('hidden');
+            resetHeaderToDefault();
+        }
+
+        await loadAntrian();
+
+        // Wire quick tags click event
+        document.querySelectorAll('.flex.flex-wrap.gap-2 span').forEach(tag => {
+            tag.addEventListener('click', () => {
+                const textarea = document.getElementById('koreksi-catatan');
+                const currentValue = textarea.value.trim();
+                if (currentValue) {
+                    textarea.value = currentValue + ', ' + tag.textContent;
+                } else {
+                    textarea.value = tag.textContent;
+                }
+            });
+        });
+
+        // Add popstate listener for back/forward buttons navigation
+        window.addEventListener('popstate', async (event) => {
+            const params = new URLSearchParams(window.location.search);
+            const setoranId = params.get('setoran_id');
+            if (setoranId) {
+                currentSetoranId = setoranId;
+                await loadSetoran(setoranId);
+                await loadAntrian();
+            } else {
+                currentSetoranId = null;
+                if (window.currentAudio) {
+                    window.currentAudio.pause();
+                    window.currentAudio = null;
+                }
+                document.getElementById('correction-workspace').classList.add('hidden');
+                document.getElementById('empty-state').classList.remove('hidden');
+                resetHeaderToDefault();
+                await loadAntrian();
+            }
+        });
+    });
+
+    async function loadSetoran(setoranId) {
+        try {
+            // Load from antrian-setoran to get data
+            const res = await api.get('/api/guru/antrian-setoran.php');
+            const setoran = res.data.find(s => s.id == setoranId);
+            if (!setoran) {
+                api.toast('Setoran tidak ditemukan.', 'error');
+                resetHeaderToDefault();
+                return;
+            }
+
+            renderSetoran(setoran);
+        } catch (err) {
+            console.error('Gagal memuat setoran:', err);
+            resetHeaderToDefault();
+        }
+    }
+
+    async function switchStudent(setoranId) {
+        if (currentSetoranId) {
+            saveDraftKoreksiSilent();
+        }
+        currentSetoranId = setoranId;
+        
+        // Update query param in URL without reload
+        const url = new URL(window.location.href);
+        url.searchParams.set('setoran_id', setoranId);
+        window.history.pushState({ setoran_id: setoranId }, '', url.toString());
+
+        // Load and render new student details
+        await loadSetoran(setoranId);
+        
+        // Re-render antrian to update active state/styles
+        await loadAntrian();
+
+        // Close mobile/tablet sidebar (queue) after selection
+        if (window.innerWidth < 1024) {
+            const antreanPanel = document.getElementById('antrean-panel');
+            if (antreanPanel) {
+                antreanPanel.classList.add('-translate-x-full', 'hidden');
+                antreanPanel.classList.remove('flex');
+            }
+        }
+    }
+
+    function saveDraftKoreksiSilent() {
+        if (!currentSetoranId) return;
+        const draft = {
+            nilaiPoin: nilaiPoin,
+            nilaiLabel: nilaiLabel,
+            catatan: document.getElementById('koreksi-catatan').value
+        };
+        localStorage.setItem(`draft_koreksi_${currentSetoranId}`, JSON.stringify(draft));
+    }
+
+    async function loadAntrian() {
+        try {
+            const res = await api.get('/api/guru/antrian-setoran.php');
+            const queueDiv = document.getElementById('antrean-list');
+
+            if (res.data && res.data.length > 0) {
+                const totalAntrian = res.data.length;
+                let currentIndex = 0;
+                
+                queueDiv.innerHTML = res.data.map((s, i) => {
+                    const initials = (s.nama_panggilan || s.nama_siswa).split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+                    const isActive = s.id == currentSetoranId;
+                    const dateObj = new Date(s.waktu_kirim.replace(' ', 'T') + 'Z');
+                    const tgl = dateObj.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', timeZone: 'Asia/Jakarta'});
+                    const jam = dateObj.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit', timeZone: 'Asia/Jakarta'}).replace('.', ':');
+                    const time = `${tgl} ${jam} WIB`;
+                    const babText = s.bab ? ` (${s.bab})` : '';
+
+                    if (isActive) {
+                        currentIndex = i + 1;
+                        return `
+                        <div class="bg-primary text-on-primary p-4 rounded-xl shadow-md cursor-pointer relative overflow-hidden transition-all group">
+                            <div class="flex items-center gap-3 relative z-10">
+                                <div class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center font-bold text-sm">${initials}</div>
+                                <div><p class="font-bold text-label-md">${s.nama_siswa}</p><p class="text-[12px] opacity-80">QS. ${s.nama_surat}${babText}: ${s.ayat_dari}-${s.ayat_sampai}</p></div>
+                            </div>
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 z-10"><span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">${time}</span></div>
+                        </div>`;
+                    } else {
+                        return `
+                        <div onclick="switchStudent(${s.id})" class="bg-white hover:bg-surface-container p-4 rounded-xl border border-outline-variant/30 cursor-pointer transition-all block">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-tertiary/10 text-tertiary flex items-center justify-center font-bold text-sm">${initials}</div>
+                                    <div><p class="font-bold text-label-md text-on-surface">${s.nama_siswa}</p><p class="text-[12px] text-on-surface-variant">QS. ${s.nama_surat}${babText}: ${s.ayat_dari}-${s.ayat_sampai}</p></div>
+                                </div>
+                                <span class="text-[10px] text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">${time}</span>
+                            </div>
+                        </div>`;
+                    }
+                }).join('');
+
+                // Update progress bar
+                const pct = totalAntrian > 0 ? Math.round((currentIndex / totalAntrian) * 100) : 0;
+                const progressBar = document.getElementById('progress-bar');
+                const progressText = document.getElementById('progress-text');
+                if (progressBar) progressBar.style.width = pct + '%';
+                if (progressText) progressText.textContent = `${currentIndex}/${totalAntrian}`;
+
+                // Auto-select removed as per request to only show when selected.
+            } else {
+                queueDiv.innerHTML = '<p class="text-center text-on-surface-variant py-4">Tidak ada setoran menunggu.</p>';
+                const progressBar = document.getElementById('progress-bar');
+                const progressText = document.getElementById('progress-text');
+                if (progressBar) progressBar.style.width = '100%';
+                if (progressText) progressText.textContent = 'Selesai!';
+            }
+        } catch (err) {
+            console.error('Gagal memuat antrian:', err);
+        }
+    }
+
+    const surahMap = {
+        'An-Nas': 114, 'Al-Falaq': 113, 'Al-Ikhlas': 112, 'Al-Lahab': 111, 'An-Nasr': 110,
+        'Al-Kafirun': 109, 'Al-Kautsar': 108, 'Al-Ma\'un': 107, 'Quraish': 106, 'Al-Fil': 105,
+        'Al-Humazah': 104, 'Al-Asr': 103, 'At-Takathur': 102, 'Al-Qari\'ah': 101, 'Al-Adiyat': 100,
+        'Az-Zalzalah': 99, 'Al-Bayyinah': 98, 'Al-Qadr': 97, 'Al-Alaq': 96, 'At-Tin': 95,
+        'Al-Inshirah': 94, 'Ad-Duha': 93, 'Al-Layl': 92, 'Ash-Shams': 91, 'Al-Balad': 90,
+        'Al-Fajr': 89, 'Al-Ghashiyah': 88, 'Al-A\'la': 87, 'At-Tariq': 86, 'Al-Buruj': 85,
+        'Al-Inshiqaq': 84, 'Al-Mutaffifin': 83, 'Al-Infitar': 82, 'At-Takwir': 81, 'Abasa': 80,
+        'An-Nazi\'at': 79, 'An-Naba': 78
+    };
+
+    function renderSetoran(s) {
+        // Tunjukkan workspace
+        document.getElementById('correction-workspace').classList.remove('hidden');
+        document.getElementById('empty-state').classList.add('hidden');
+
+        const avatarContainer = document.getElementById('student-avatar-container');
+        if (avatarContainer) {
+            avatarContainer.classList.remove('hidden');
+        }
+        const historyBtn = document.getElementById('btn-riwayat-siswa');
+        if (historyBtn) {
+            historyBtn.classList.remove('hidden');
+        }
+
+        const initials = (s.nama_panggilan || s.nama_siswa).split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+        document.querySelector('h2.font-headline-md').textContent = s.nama_siswa;
+        const babText = s.bab ? ` (${s.bab})` : '';
+        document.getElementById('student-class-setoran-count').textContent = `Setoran QS. ${s.nama_surat}${babText} Ayat ${s.ayat_dari}-${s.ayat_sampai}`;
+        // Update tugas info banner
+        const tugasInfoEl = document.getElementById('tugas-info');
+        if (tugasInfoEl) tugasInfoEl.textContent = `QS. ${s.nama_surat}${babText} Ayat ${s.ayat_dari}-${s.ayat_sampai}`;
+        // Fallback untuk selector lama jika ada
+        const oldTugasEl = document.querySelector('.bg-primary-fixed\/20 p:last-child');
+        if (oldTugasEl && !oldTugasEl.id) oldTugasEl.textContent = `QS. ${s.nama_surat}${babText} Ayat ${s.ayat_dari}-${s.ayat_sampai}`;
+
+        // Student Photo / Initials
+        const photoImg = document.getElementById('student-photo');
+        const initialsDiv = document.getElementById('student-initials');
+        if (s.foto_siswa) {
+            photoImg.src = api.toAbsoluteUrl('/' + s.foto_siswa);
+            photoImg.classList.remove('hidden');
+            initialsDiv.classList.add('hidden');
+        } else {
+            photoImg.classList.add('hidden');
+            initialsDiv.textContent = initials;
+            initialsDiv.classList.remove('hidden');
+        }
+
+        // Quran Reference API
+        const refTextDiv = document.getElementById('quran-reference-text');
+        const cleanSurahName = s.nama_surat.replace(/^QS\.\s+/, '');
+        const surahNo = surahMap[cleanSurahName];
+        if (surahNo) {
+            refTextDiv.textContent = 'Memuat referensi ayat...';
+            fetch(`https://api.alquran.cloud/v1/surah/${surahNo}`)
+                .then(res => res.json())
+                .then(resData => {
+                    if (resData.code === 200 && resData.data && resData.data.ayahs) {
+                        const verses = resData.data.ayahs.slice(s.ayat_dari - 1, s.ayat_sampai);
+                        const text = verses.map(v => `${v.text} ﴿${v.numberInSurah}﴾`).join(' ');
+                        refTextDiv.textContent = text;
+                    } else {
+                        refTextDiv.textContent = `QS. ${s.nama_surat}: ${s.ayat_dari}-${s.ayat_sampai}`;
+                    }
+                })
+                .catch(err => {
+                    refTextDiv.textContent = `QS. ${s.nama_surat}: ${s.ayat_dari}-${s.ayat_sampai}`;
+                });
+        } else {
+            refTextDiv.textContent = `QS. ${s.nama_surat}: ${s.ayat_dari}-${s.ayat_sampai}`;
+        }
+
+        if (s.file_audio) {
+            if (window.currentAudio) {
+                window.currentAudio.pause();
+            }
+            currentAudio = new Audio(api.toAbsoluteUrl('/' + s.file_audio));
+            window.currentAudio = currentAudio;
+
+            currentAudio.addEventListener('loadedmetadata', () => {
+                document.getElementById('audio-duration').textContent = formatAudioTime(currentAudio.duration);
+                const ext = s.file_audio.split('.').pop().toUpperCase();
+                const audioInfoEl = document.getElementById('audio-info');
+                const audioInfoText = `Durasi: ${formatAudioTime(currentAudio.duration)} \u2022 ${ext} \u2022 Dikirim: ${api.formatDateTime(s.waktu_kirim)}`;
+                if (audioInfoEl) {
+                    audioInfoEl.textContent = audioInfoText;
+                } else {
+                    const oldEl = document.querySelector('.text-\\[12px\\].text-on-surface-variant');
+                    if (oldEl) oldEl.textContent = audioInfoText;
+                }
+            });
+
+            currentAudio.addEventListener('timeupdate', () => {
+                if (currentAudio.duration) {
+                    const pct = (currentAudio.currentTime / currentAudio.duration) * 100;
+                    document.getElementById('audio-progress-bar').style.width = pct + '%';
+                    document.getElementById('audio-current-time').textContent = formatAudioTime(currentAudio.currentTime);
+                }
+            });
+
+            currentAudio.addEventListener('ended', () => {
+                const btn = document.getElementById('btn-play-audio');
+                btn.innerHTML = '<span class="material-symbols-outlined text-[40px]" style="font-variation-settings: \'FILL\' 1;">play_arrow</span>';
+                document.getElementById('audio-progress-bar').style.width = '0%';
+                document.getElementById('audio-current-time').textContent = '00:00';
+            });
+        }
+
+        // Load local draft if exists
+        const rawDraft = localStorage.getItem(`draft_koreksi_${s.id}`);
+        if (rawDraft) {
+            try {
+                const draft = JSON.parse(rawDraft);
+                if (draft.nilaiPoin && draft.nilaiLabel) {
+                    selectNilai(draft.nilaiPoin, draft.nilaiLabel);
+                } else {
+                    resetNilaiSelection();
+                }
+                document.getElementById('koreksi-catatan').value = draft.catatan || '';
+            } catch (e) {
+                console.error('Failed to parse draft:', e);
+                resetNilaiSelection();
+            }
+        } else {
+            // Reset to defaults
+            resetNilaiSelection();
+            document.getElementById('koreksi-catatan').value = '';
+        }
+    }
+
+    function formatAudioTime(seconds) {
+        if (!seconds || isNaN(seconds)) return '00:00';
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    function toggleAudioPlay() {
+        if (!currentAudio) return;
+        const btn = document.getElementById('btn-play-audio');
+        if (currentAudio.paused) {
+            currentAudio.play();
+            btn.innerHTML = '<span class="material-symbols-outlined text-[40px]" style="font-variation-settings: \'FILL\' 1;">pause</span>';
+        } else {
+            currentAudio.pause();
+            btn.innerHTML = '<span class="material-symbols-outlined text-[40px]" style="font-variation-settings: \'FILL\' 1;">play_arrow</span>';
+        }
+    }
+
+    function replayAudio() {
+        if (!currentAudio) return;
+        currentAudio.currentTime = Math.max(0, currentAudio.currentTime - 10);
+    }
+
+    function forwardAudio() {
+        if (!currentAudio) return;
+        currentAudio.currentTime = Math.min(currentAudio.duration, currentAudio.currentTime + 10);
+    }
+
+    function seekAudio(e) {
+        if (!currentAudio || !currentAudio.duration) return;
+        const container = document.getElementById('waveform-container');
+        const rect = container.getBoundingClientRect();
+        const pct = (e.clientX - rect.left) / rect.width;
+        currentAudio.currentTime = pct * currentAudio.duration;
+    }
+
+    // ====== PENILAIAN BB/MB/BSH/BSB ======
+    let nilaiPoin = null;
+    let nilaiLabel = null;
+
+    function selectNilai(poin, label) {
+        nilaiPoin = poin;
+        nilaiLabel = label;
+        document.getElementById('nilai-poin').value = poin;
+        document.getElementById('nilai-label').value = label;
+
+        const colorMap = { BB: 'red', MB: 'amber', BSH: 'blue', BSB: 'green' };
+        const borderMap = { BB: 'border-red-500 bg-red-50', MB: 'border-amber-500 bg-amber-50', BSH: 'border-blue-500 bg-blue-50', BSB: 'border-green-500 bg-green-50' };
+        const defClass = 'nilai-btn relative p-4 rounded-xl border-2 text-left transition-all group ';
+
+        ['BB','MB','BSH','BSB'].forEach(lbl => {
+            const btn = document.getElementById('btn-nilai-' + lbl);
+            if (btn) {
+                if (lbl === label) {
+                    btn.className = defClass + borderMap[lbl];
+                } else {
+                    btn.className = defClass + 'border-outline-variant bg-surface-container-low hover:border-gray-300';
+                }
+            }
+        });
+    }
+
+    function saveDraftKoreksi() {
+        if (!currentSetoranId) {
+            api.toast('Tidak ada setoran yang aktif.', 'error');
+            return;
+        }
+        saveDraftKoreksiSilent();
+        api.toast('Draft koreksi disimpan secara lokal.', 'success');
+    }
+
+    function resetNilaiSelection() {
+        nilaiPoin = null;
+        nilaiLabel = null;
+        const valPoin = document.getElementById('nilai-poin');
+        const valLabel = document.getElementById('nilai-label');
+        if (valPoin) valPoin.value = '';
+        if (valLabel) valLabel.value = '';
+
+        ['BB','MB','BSH','BSB'].forEach(lbl => {
+            const btn = document.getElementById('btn-nilai-' + lbl);
+            if (btn) btn.className = 'nilai-btn relative p-4 rounded-xl border-2 border-outline-variant bg-surface-container-low text-left transition-all hover:border-gray-300 group';
+        });
+    }
+
+    function submitKoreksi(keputusan) {
+        const catatan = document.getElementById('koreksi-catatan').value.trim();
+
+        if (keputusan === 'perbaiki' && !catatan) {
+            api.toast('Catatan wajib diisi jika memilih Perbaiki.', 'error');
+            return;
+        }
+
+        if (!nilaiPoin) {
+            api.toast('Pilih penilaian (BB/MB/BSH/BSB) terlebih dahulu.', 'error');
+            document.getElementById('nilai-selector').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        api.post('/api/guru/koreksi.php', {
+            setoran_id:  parseInt(currentSetoranId),
+            keputusan:   keputusan,
+            catatan:     catatan || null,
+            nilai_poin:  nilaiPoin,
+            nilai_label: nilaiLabel
+        }).then(async res => {
+            localStorage.removeItem(`draft_koreksi_${currentSetoranId}`);
+            nilaiPoin = null;
+            nilaiLabel = null;
+            // Reset nilai selector visual
+            ['BB','MB','BSH','BSB'].forEach(lbl => {
+                const btn = document.getElementById('btn-nilai-' + lbl);
+                if (btn) btn.className = 'nilai-btn relative p-4 rounded-xl border-2 border-outline-variant bg-surface-container-low text-left transition-all hover:border-gray-300 group';
+            });
+
+            api.toast(`Setoran berhasil ${keputusan === 'diterima' ? 'diterima' : 'dikembalikan untuk perbaikan'}!`, 'success');
+            
+            // Load next student from antrian dynamically
+            try {
+                const queueRes = await api.get('/api/guru/antrian-setoran.php');
+                if (queueRes.data && queueRes.data.length > 0) {
+                    const nextStudent = queueRes.data[0];
+                    currentSetoranId = nextStudent.id;
+                    
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('setoran_id', currentSetoranId);
+                    window.history.pushState({ setoran_id: currentSetoranId }, '', url.toString());
+
+                    await loadSetoran(currentSetoranId);
+                    await loadAntrian();
+                } else {
+                    currentSetoranId = null;
+                    if (window.currentAudio) {
+                        window.currentAudio.pause();
+                        window.currentAudio = null;
+                    }
+                    document.getElementById('correction-workspace').classList.add('hidden');
+                    document.getElementById('empty-state').classList.remove('hidden');
+                    resetHeaderToDefault();
+                    document.getElementById('koreksi-catatan').value = '';
+                    await loadAntrian();
+                }
+            } catch (err) {
+                console.error('Gagal memproses antrian berikutnya:', err);
+            }
+        });
+    }
+
+    // Mobile queue toggle button is handled globally in assets/js/api.js via id="antrean-panel"
+    </script>
+</body>
+</html>

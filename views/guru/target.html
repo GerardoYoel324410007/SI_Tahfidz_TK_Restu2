@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Manajemen Tugas - Tahfidz BA Restu Z</title>
+    <meta name="description" content="Manajemen tugas guru tahfidz untuk kelas TKA 1.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": { "tertiary": "#003580","primary-fixed": "#a9f3be","on-primary": "#ffffff","surface-tint": "#226b41","surface-bright": "#f8faf9","on-primary-container": "#8ad2a0","secondary-container": "#fe8a29","secondary-fixed-dim": "#ffb786","surface-dim": "#d8dada","surface-container-highest": "#e1e3e2","primary": "#004323","error": "#ba1a1a","on-tertiary-container": "#aac1ff","on-surface": "#191c1c","inverse-surface": "#2e3131","primary-fixed-dim": "#8dd6a3","on-secondary": "#ffffff","surface": "#f8faf9","secondary-fixed": "#ffdcc6","surface-container-high": "#e6e9e8","on-surface-variant": "#404941","outline": "#707a70","on-tertiary-fixed-variant": "#00429c","on-secondary-fixed": "#311300","error-container": "#ffdad6","tertiary-fixed": "#d9e2ff","tertiary-fixed-dim": "#b0c6ff","on-tertiary-fixed": "#001945","background": "#f8faf9","tertiary-container": "#004aae","secondary": "#964900","surface-container-lowest": "#ffffff","on-secondary-container": "#642f00","surface-container-low": "#f2f4f3","on-tertiary": "#ffffff","surface-container": "#eceeed","on-error": "#ffffff","inverse-primary": "#8dd6a3","on-primary-fixed": "#00210e","on-background": "#191c1c","on-secondary-fixed-variant": "#723600","on-primary-fixed-variant": "#00522c","on-error-container": "#93000a","surface-variant": "#e1e3e2","primary-container": "#0d5c34","outline-variant": "#bfc9bf","inverse-on-surface": "#eff1f0" },
+                "borderRadius": {"DEFAULT": "1rem","lg": "1.5rem","xl": "2.5rem","full": "9999px"},
+                "spacing": {"base": "8px","margin-mobile": "16px","container-padding-sm": "16px","container-padding-md": "24px","margin-desktop": "48px","gutter": "20px"},
+                "fontFamily": {"label-md": ["Plus Jakarta Sans"],"headline-sm": ["Plus Jakarta Sans"],"body-md": ["Plus Jakarta Sans"],"body-lg": ["Plus Jakarta Sans"],"headline-lg": ["Plus Jakarta Sans"],"headline-md": ["Plus Jakarta Sans"]},
+                "fontSize": { "label-md": ["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],"body-lg": ["18px",{"lineHeight":"26px","fontWeight":"500"}],"headline-lg": ["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-md": ["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}] }
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: max(884px, 100vh); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .bg-mesh-accent { background-image: radial-gradient(at 0% 0%, rgba(0,67,35,0.05) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(0,53,128,0.05) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(150,73,0,0.05) 0px, transparent 50%); }
+        .vibrant-card-shadow { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.2); }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="bg-surface-bright text-on-surface bg-mesh-accent antialiased min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-primary shadow-[40px_0_60px_-15px_rgba(0,67,35,0.15)] flex-col py-8 z-50 transform transition-transform duration-300 -translate-x-full md:translate-x-0 hidden md:flex overflow-y-auto"></aside>
+
+    <main class="ml-0 md:ml-72 min-h-screen w-full md:w-[calc(100%-18rem)] pb-32">
+    <!-- Top App Bar -->
+    <header class="h-20 w-full sticky top-0 z-40 bg-surface-bright/80 backdrop-blur-md shadow-sm flex items-center justify-between px-4 md:px-margin-desktop">
+        <div class="flex items-center gap-2 md:gap-4">
+            <button id="mobile-menu-btn" class="md:hidden p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant flex-shrink-0">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <!-- Desktop Collapse Button -->
+            <button id="desktop-collapse-btn" class="hidden md:flex p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant mr-2" title="Lipat Menu">
+                <span class="material-symbols-outlined">menu_open</span>
+            </button>
+            <div>
+                <h1 class="text-sm sm:text-headline-sm font-bold text-primary leading-tight">Manajemen Tugas</h1>
+                <p class="text-[10px] sm:text-label-md text-on-surface-variant" id="header-kelas-name">Memuat kelas...</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 md:gap-4">
+            <button onclick="saveDraftTugas()" class="bg-primary text-white px-4 py-2 rounded-full text-xs md:text-sm font-bold shadow-md flex items-center gap-1.5 hover:bg-primary-container active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-[16px] md:text-[18px]">drafts</span> <span class="hidden sm:inline">Simpan Draft</span><span class="inline sm:hidden">Draft</span>
+            </button>
+            <div class="h-10 w-px bg-outline-variant"></div>
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="text-right hidden sm:block">
+                    <p class="font-label-md text-label-md text-on-surface" id="header-nama">-</p>
+                    <p class="text-[12px] text-on-surface-variant">Wali Kelas</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-sm border-2 border-primary-fixed" id="header-initials">-</div>
+            </div>
+            <button onclick="authGuard.logout()" class="bg-error text-on-error px-4 py-2 rounded-full text-xs md:text-sm font-bold active:opacity-80 transition-all ml-1 md:ml-2">Logout</button>
+        </div>
+    </header>
+
+    <!-- Main Builder Area -->
+    <div class="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop pb-56 md:pb-32">
+        <!-- Progress Steps -->
+        <div class="max-w-4xl mx-auto mb-10">
+            <div class="flex items-center justify-between relative">
+                <!-- Line -->
+                <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-surface-container-high -z-10"></div>
+                <!-- Step 1 -->
+                <div class="flex flex-col items-center gap-2 bg-surface-bright px-4">
+                    <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold border-4 border-surface-bright">1</div>
+                    <span class="text-label-md font-label-md text-primary">Detail Tugas</span>
+                </div>
+                <!-- Step 2 -->
+                <div class="flex flex-col items-center gap-2 bg-surface-bright px-4 opacity-50">
+                    <div class="w-10 h-10 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center font-bold border-4 border-surface-bright">2</div>
+                    <span class="text-label-md font-label-md text-on-surface">Target Siswa</span>
+                </div>
+                <!-- Step 3 -->
+                <div class="flex flex-col items-center gap-2 bg-surface-bright px-4 opacity-50">
+                    <div class="w-10 h-10 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center font-bold border-4 border-surface-bright">3</div>
+                    <span class="text-label-md font-label-md text-on-surface">Pratinjau & Kirim</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-7xl mx-auto lg:h-full">
+            <!-- Left Column: Form Setup (24px rounded) -->
+            <div class="lg:col-span-5">
+                <div class="bg-white rounded-[24px] p-4 sm:p-8 shadow-[0_20px_50px_-20px_rgba(0,67,35,0.12)] border border-primary/10 space-y-6 lg:h-full">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-3 bg-emerald-500/10 rounded-xl">
+                            <span class="material-symbols-outlined text-emerald-600 text-3xl font-bold" style="font-variation-settings: 'FILL' 1;">flag</span>
+                        </div>
+                        <div>
+                            <h4 class="font-headline-sm text-headline-sm text-on-surface">Set Target Harian</h4>
+                            <p class="text-[12px] text-on-surface-variant uppercase tracking-widest font-bold">Parameter Tugas</p>
+                        </div>
+                    </div>
+                    <div class="space-y-5">
+                        <!-- Dropdown Surah -->
+                        <div>
+                            <label class="block font-label-md text-label-md text-emerald-700 mb-2 px-1 tracking-wide uppercase">PILIH SURAH</label>
+                            <div class="relative">
+                                <select id="nama-surat" class="w-full bg-surface-container-low border-2 border-emerald-100 rounded-xl p-4 focus:ring-0 focus:border-emerald-500 appearance-none transition-all font-body-md text-on-surface">
+                                    <option value="">-- Pilih Surah --</option>
+                                </select>
+                                <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-600">expand_more</span>
+                            </div>
+                        </div>
+                        <!-- Bab Input -->
+                        <div>
+                            <label class="block font-label-md text-label-md text-emerald-700 mb-2 px-1 tracking-wide uppercase">BAB / TEMA (OPSIONAL)</label>
+                            <input id="bab-tugas" class="w-full bg-surface-container-low border-2 border-emerald-100 rounded-xl p-4 focus:ring-0 focus:border-emerald-500 transition-all font-body-md text-on-surface" placeholder="Contoh: Bab 1, Wudhu, Hadits Kebersihan" type="text">
+                        </div>
+                        <!-- Ayah Range -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-label-md text-label-md text-emerald-700 mb-2 px-1 tracking-wide uppercase">MULAI AYAT</label>
+                                <input id="ayat-dari" class="w-full bg-surface-container-low border-2 border-emerald-100 rounded-xl p-4 focus:ring-0 focus:border-emerald-500 transition-all font-body-md" placeholder="1" type="number" value="1" min="1">
+                            </div>
+                            <div>
+                                <label class="block font-label-md text-label-md text-emerald-700 mb-2 px-1 tracking-wide uppercase">SAMPAI AYAT</label>
+                                <input id="ayat-sampai" class="w-full bg-surface-container-low border-2 border-emerald-100 rounded-xl p-4 focus:ring-0 focus:border-emerald-500 transition-all font-body-md" placeholder="3" type="number" value="3" min="1">
+                            </div>
+                            <div class="col-span-2 text-xs text-emerald-800 px-1 font-bold mt-1 hidden" id="info-ayat-max"></div>
+                        </div>
+                        <!-- Note/Instruction -->
+                        <div>
+                            <label class="block font-label-md text-label-md text-emerald-700 mb-2 px-1 tracking-wide uppercase">PESAN KHUSUS (OPSIONAL)</label>
+                            <textarea id="pesan-tugas" class="w-full bg-surface-container-low border-2 border-emerald-100 rounded-xl p-4 focus:ring-0 focus:border-emerald-500 transition-all font-body-md resize-none" placeholder="Contoh: Perhatikan makhraj huruf sin dan shod..." rows="3"></textarea>
+                        </div>
+                        <!-- Deadline Input -->
+                        <div>
+                            <label class="block font-label-md text-label-md text-emerald-700 mb-2 px-1 tracking-wide uppercase">TENGGAT WAKTU PENGUMPULAN</label>
+                            <input id="deadline" type="datetime-local" class="w-full bg-surface-container-low border-2 border-emerald-100 rounded-xl p-4 focus:ring-0 focus:border-emerald-500 transition-all font-body-md text-on-surface">
+                        </div>
+                    </div>
+                </div>
+            </div>
+                       <!-- Right Column: Media Uploader (24px rounded) -->
+            <div class="lg:col-span-7">
+                <div class="bg-white rounded-[24px] p-4 sm:p-8 shadow-[0_20px_50px_-20px_rgba(0,53,128,0.12)] border border-tertiary/10 lg:h-full flex flex-col">
+                    <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-8">
+                        <div class="flex items-center gap-3">
+                            <div class="p-3 bg-blue-500/10 rounded-xl">
+                                <span class="material-symbols-outlined text-tertiary text-3xl font-bold" style="font-variation-settings: 'FILL' 1;">audio_file</span>
+                            </div>
+                            <div>
+                                <h4 class="font-headline-sm text-headline-sm text-on-surface">Unggah Panduan</h4>
+                                <p class="text-[12px] text-on-surface-variant uppercase tracking-widest font-bold">Materi Muraja'ah</p>
+                            </div>
+                        </div>
+                        <button id="btn-trigger-rekam" onclick="showRecordArea()" class="flex items-center gap-2 text-secondary bg-secondary-fixed px-4 py-2 rounded-full font-bold active:scale-95 transition-transform hover:bg-secondary-fixed-dim">
+                            <span class="material-symbols-outlined">mic</span>
+                            <span class="text-label-md font-label-md">Rekam Audio</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Drag and Drop Area -->
+                    <div id="drop-area" class="flex-1 flex flex-col items-center justify-center border-4 border-dashed border-emerald-100 rounded-2xl bg-surface-container-low p-6 sm:p-10 text-center space-y-4 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all group cursor-pointer" onclick="document.getElementById('audio-file-input').click()">
+                        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-[40px] text-emerald-600">upload_file</span>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="font-headline-sm text-headline-sm text-on-surface">Seret &amp; Lepas Audio</p>
+                            <p class="font-body-md text-on-surface-variant">Format MP3 atau WAV (Maks. 20MB)</p>
+                        </div>
+                        <div class="inline-block bg-white border-2 border-emerald-500 text-emerald-600 font-bold px-8 py-3 rounded-full hover:bg-emerald-500 hover:text-white transition-colors shadow-sm select-none">
+                            Pilih Berkas
+                        </div>
+                        <input type="file" id="audio-file-input" accept="audio/*" class="hidden" onchange="handleAudioSelect(this)">
+                    </div>
+ 
+                    <!-- Record Area -->
+                    <div id="record-area" class="hidden flex-1 flex flex-col items-center justify-center border-4 border-dashed border-red-200 rounded-2xl bg-red-50/30 p-6 sm:p-10 text-center space-y-4">
+                        <div id="record-indicator" class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-3xl text-red-600">mic</span>
+                        </div>
+                        <div>
+                            <p id="record-status" class="font-headline-sm text-headline-sm text-on-surface">Tekan tombol untuk mulai merekam</p>
+                            <p id="record-duration" class="font-body-md text-on-surface-variant">00:00</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <button type="button" id="btn-record-toggle" onclick="toggleRecording()" class="bg-red-600 text-white font-bold px-6 py-2.5 rounded-full hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">fiber_manual_record</span> <span id="record-btn-text">Mulai Rekam</span>
+                            </button>
+                            <button type="button" onclick="cancelRecording()" class="bg-white border-2 border-outline-variant text-on-surface-variant font-bold px-6 py-2.5 rounded-full hover:bg-surface-container transition-colors">
+                                Batal
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Uploaded Preview -->
+                    <div id="audio-preview" class="mt-8 p-5 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-4 hidden">
+                        <button onclick="playPreview()" class="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg active:scale-90 transition-transform">
+                            <span class="material-symbols-outlined text-[24px]">play_arrow</span>
+                        </button>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <p class="font-label-md text-label-md text-emerald-900" id="audio-file-name">-</p>
+                            </div>
+                        </div>
+                        <button onclick="removeAudio()" class="p-2 text-on-surface-variant hover:text-error transition-colors">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bento Status Section (Tricolor Theme) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mt-8 max-w-7xl mx-auto">
+            <!-- Target Kelas (Emerald Green) -->
+            <div class="bg-primary p-8 rounded-[24px] text-white flex flex-col justify-between vibrant-card-shadow relative overflow-hidden group">
+                <div class="relative z-10">
+                    <span class="text-label-md opacity-80 uppercase tracking-widest font-bold">Target Kelas</span>
+                    <h5 id="header-kelas-name" class="text-headline-lg font-bold mt-2">TKA 1 - Al Fatih</h5>
+                    <div class="flex items-center gap-2 mt-6 text-primary-fixed">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        <span class="text-label-md">Kurikulum 2024 Aktif</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] opacity-10 group-hover:scale-110 transition-transform">school</span>
+            </div>
+            <!-- Siswa Penerima (Energetic Orange) -->
+            <div class="bg-secondary-container p-8 rounded-[24px] text-on-secondary-container flex flex-col justify-between vibrant-card-shadow relative overflow-hidden group">
+                <div class="relative z-10">
+                    <span class="text-label-md opacity-80 uppercase tracking-widest font-bold">Siswa Penerima</span>
+                    <h5 class="text-headline-lg font-bold mt-2" id="penerima-count">24 Anak</h5>
+                    <div class="flex items-center gap-2 mt-6 text-on-secondary-container/70">
+                        <span class="material-symbols-outlined">group</span>
+                        <span class="text-label-md">Seluruh Anggota Kelas</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] opacity-10 group-hover:scale-110 transition-transform">person_4</span>
+            </div>
+            <!-- Media Terlampir (Professional Blue) -->
+            <div class="bg-tertiary-container p-8 rounded-[24px] text-white flex flex-col justify-between vibrant-card-shadow relative overflow-hidden group">
+                <div class="relative z-10">
+                    <span class="text-label-md opacity-80 uppercase tracking-widest font-bold">Media Terlampir</span>
+                    <h5 class="text-headline-lg font-bold mt-2">1 Panduan Audio</h5>
+                    <div class="flex items-center gap-2 mt-6 text-tertiary-fixed">
+                        <span class="material-symbols-outlined">headphones</span>
+                        <span class="text-label-md">Kualitas HD Terverifikasi</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] opacity-10 group-hover:scale-110 transition-transform">monitoring</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Action Bar -->
+    <footer class="fixed bottom-0 right-0 left-0 h-auto py-4 bg-white/80 backdrop-blur-md border-t border-outline-variant px-4 md:px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-4 z-40">
+        <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+            <div class="flex -space-x-2">
+                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white text-xs border-2 border-white shadow-sm font-bold">AF</div>
+                <div class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-white text-xs border-2 border-white shadow-sm font-bold">SZ</div>
+                <div class="w-10 h-10 rounded-full bg-tertiary flex items-center justify-center text-white text-xs border-2 border-white shadow-sm font-bold">UK</div>
+                <div class="w-10 h-10 rounded-full bg-surface-container-highest border-2 border-white flex items-center justify-center text-on-surface-variant font-bold text-xs shadow-sm" id="penerima-count-bottom">+21</div>
+            </div>
+            <div class="text-right md:text-left">
+                <p class="font-label-md text-label-md text-on-surface leading-tight" id="parent-count">24 Wali Murid</p>
+                <p class="text-[12px] text-on-surface-variant">Tugas siap disebarkan</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 w-full md:w-auto">
+            <button onclick="publishTugas()" class="w-full md:w-auto bg-[#FE8A29] hover:bg-orange-600 text-white px-8 md:px-10 py-3 md:py-4 rounded-full font-bold flex items-center justify-center gap-3 shadow-[0_20px_40px_-10px_rgba(254,138,41,0.5)] hover:-translate-y-1 active:scale-95 transition-all group">
+                <span class="material-symbols-outlined group-hover:rotate-12 transition-transform">send</span>
+                <span>Sebarkan ke Wali Murid</span>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+    let currentKelasId = null;
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await authGuard.protect('guru');
+        if (!user) return;
+        authGuard.initUserData(user);
+
+        // Load stats to fill TKA 1 details and class info dynamically
+        try {
+            const res = await api.get('/api/guru/beranda-stats.php');
+            const d = res.data;
+            if (d && d.guru) {
+                currentKelasId = d.guru.kelas_id;
+                document.getElementById('header-kelas-name').textContent = d.guru.kelas;
+                const totalSiswa = d.statistik ? d.statistik.total_siswa : 0;
+                document.getElementById('penerima-count').textContent = totalSiswa + ' Anak';
+                document.getElementById('parent-count').textContent = totalSiswa + ' Wali Murid';
+                document.getElementById('penerima-count-bottom').textContent = '+' + Math.max(0, totalSiswa - 3);
+            }
+        } catch (err) {
+            console.error('Gagal memuat info kelas:', err);
+        }
+
+        // Set default deadline to today at 23:59
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        document.getElementById('deadline').value = `${year}-${month}-${day}T23:59`;
+
+        // Fetch active Surahs dynamically
+        try {
+            const resSurat = await api.get('/api/guru/daftar-surat.php');
+            const surahs = resSurat.data || [];
+            const selectSurat = document.getElementById('nama-surat');
+            
+            selectSurat.innerHTML = '<option value="">-- Pilih Surah --</option>';
+            
+            surahs.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.nama_latin;
+                opt.textContent = `QS. ${s.nama_latin}`;
+                opt.dataset.ayat = s.jumlah_ayat;
+                selectSurat.appendChild(opt);
+            });
+
+            // Add change listener to nama-surat
+            selectSurat.addEventListener('change', () => {
+                const selectedOpt = selectSurat.options[selectSurat.selectedIndex];
+                const infoDiv = document.getElementById('info-ayat-max');
+                const dariInput = document.getElementById('ayat-dari');
+                const sampaiInput = document.getElementById('ayat-sampai');
+
+                if (selectedOpt && selectedOpt.value) {
+                    const maxAyat = parseInt(selectedOpt.dataset.ayat);
+                    infoDiv.textContent = `Maksimal ${maxAyat} ayat (QS. ${selectedOpt.value})`;
+                    infoDiv.classList.remove('hidden');
+
+                    dariInput.min = 1;
+                    dariInput.max = maxAyat;
+                    dariInput.value = 1;
+
+                    sampaiInput.min = 1;
+                    sampaiInput.max = maxAyat;
+                    sampaiInput.value = maxAyat;
+                } else {
+                    infoDiv.textContent = '';
+                    infoDiv.classList.add('hidden');
+                    dariInput.removeAttribute('max');
+                    sampaiInput.removeAttribute('max');
+                }
+            });
+
+        } catch (err) {
+            console.error('Gagal memuat daftar surah:', err);
+            api.toast('Gagal memuat daftar surah dari database.', 'error');
+        }
+    });
+
+    let selectedAudioFile = null;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordInterval = null;
+    let recordSeconds = 0;
+
+    function showRecordArea() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            api.toast('Perekaman langsung memerlukan koneksi aman (HTTPS) atau localhost. Silakan unggah file secara manual.', 'warning');
+            return;
+        }
+        document.getElementById('drop-area').classList.add('hidden');
+        document.getElementById('record-area').classList.remove('hidden');
+        document.getElementById('record-status').textContent = 'Tekan tombol untuk mulai merekam';
+        document.getElementById('record-duration').textContent = '00:00';
+        document.getElementById('record-btn-text').textContent = 'Mulai Rekam';
+        const btnToggle = document.getElementById('btn-record-toggle');
+        btnToggle.innerHTML = '<span class="material-symbols-outlined text-sm">fiber_manual_record</span> <span id="record-btn-text">Mulai Rekam</span>';
+        btnToggle.className = "bg-red-600 text-white font-bold px-6 py-2.5 rounded-full hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2";
+    }
+
+    async function toggleRecording() {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            stopRecording();
+        } else {
+            await startRecording();
+        }
+    }
+
+    async function startRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.addEventListener('dataavailable', (e) => {
+                if (e.data.size > 0) {
+                    audioChunks.push(e.data);
+                }
+            });
+
+            mediaRecorder.addEventListener('stop', () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                selectedAudioFile = new File([audioBlob], `rekaman_${Date.now()}.webm`, { type: 'audio/webm' });
+
+                document.getElementById('audio-file-name').textContent = selectedAudioFile.name;
+                document.getElementById('audio-preview').classList.remove('hidden');
+
+                document.getElementById('record-area').classList.add('hidden');
+                document.getElementById('drop-area').classList.remove('hidden');
+
+                stream.getTracks().forEach(track => track.stop());
+            });
+
+            mediaRecorder.start();
+
+            document.getElementById('record-status').textContent = 'Merekam...';
+            document.getElementById('record-indicator').classList.add('animate-pulse');
+            
+            const btnToggle = document.getElementById('btn-record-toggle');
+            btnToggle.innerHTML = '<span class="material-symbols-outlined text-sm">stop</span> <span id="record-btn-text">Berhenti</span>';
+            btnToggle.className = "bg-neutral-800 text-white font-bold px-6 py-2.5 rounded-full hover:bg-neutral-900 transition-colors shadow-sm flex items-center gap-2";
+
+            recordSeconds = 0;
+            recordInterval = setInterval(() => {
+                recordSeconds++;
+                const mins = Math.floor(recordSeconds / 60).toString().padStart(2, '0');
+                const secs = (recordSeconds % 60).toString().padStart(2, '0');
+                document.getElementById('record-duration').textContent = `${mins}:${secs}`;
+            }, 1000);
+
+        } catch (err) {
+            console.error('Error accessing microphone:', err);
+            api.toast('Tidak dapat mengakses mikrofon. Pastikan izin mikrofon diberikan.', 'error');
+        }
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            clearInterval(recordInterval);
+            document.getElementById('record-indicator').classList.remove('animate-pulse');
+        }
+    }
+
+    function cancelRecording() {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            clearInterval(recordInterval);
+        }
+        document.getElementById('record-indicator').classList.remove('animate-pulse');
+        document.getElementById('record-area').classList.add('hidden');
+        document.getElementById('drop-area').classList.remove('hidden');
+    }
+
+    function handleAudioSelect(input) {
+        if (input.files && input.files[0]) {
+            selectedAudioFile = input.files[0];
+            document.getElementById('audio-file-name').textContent = selectedAudioFile.name;
+            document.getElementById('audio-preview').classList.remove('hidden');
+        }
+    }
+
+    let previewAudio = null;
+    function removeAudio() {
+        selectedAudioFile = null;
+        document.getElementById('audio-file-input').value = '';
+        document.getElementById('audio-preview').classList.add('hidden');
+        if (previewAudio) {
+            previewAudio.pause();
+            previewAudio = null;
+        }
+        const btn = document.querySelector('#audio-preview button');
+        if (btn) {
+            const icon = btn.querySelector('span');
+            if (icon) icon.textContent = 'play_arrow';
+        }
+    }
+
+    function playPreview() {
+        if (!selectedAudioFile) return;
+        const btn = document.querySelector('#audio-preview button');
+        const icon = btn.querySelector('span');
+
+        if (previewAudio) {
+            if (!previewAudio.paused) {
+                previewAudio.pause();
+                icon.textContent = 'play_arrow';
+            } else {
+                previewAudio.play();
+                icon.textContent = 'pause';
+            }
+            return;
+        }
+
+        try {
+            const url = URL.createObjectURL(selectedAudioFile);
+            previewAudio = new Audio(url);
+            previewAudio.play().then(() => {
+                icon.textContent = 'pause';
+            }).catch(err => {
+                console.error('Playback error:', err);
+                api.toast('Gagal memutar audio preview.', 'error');
+            });
+
+            previewAudio.addEventListener('ended', () => {
+                icon.textContent = 'play_arrow';
+                previewAudio = null;
+            });
+        } catch (e) {
+            console.error('Error creating preview audio:', e);
+            api.toast('Gagal memutar preview.', 'error');
+        }
+    }
+
+    async function publishTugas() {
+        const namaSurat = document.getElementById('nama-surat').value;
+        const bab = document.getElementById('bab-tugas').value;
+        const ayatDari = document.getElementById('ayat-dari').value;
+        const ayatSampai = document.getElementById('ayat-sampai').value;
+        const pesanTugas = document.getElementById('pesan-tugas').value;
+        const deadline = document.getElementById('deadline').value;
+
+        if (!namaSurat) { api.toast('Pilih surah terlebih dahulu.', 'error'); return; }
+        if (!ayatDari || !ayatSampai) { api.toast('Ayat dari dan sampai wajib diisi.', 'error'); return; }
+        if (parseInt(ayatSampai) < parseInt(ayatDari)) { api.toast('Ayat sampai harus >= ayat dari.', 'error'); return; }
+
+        const selectSurat = document.getElementById('nama-surat');
+        const selectedOpt = selectSurat.options[selectSurat.selectedIndex];
+        if (selectedOpt && selectedOpt.value) {
+            const maxAyat = parseInt(selectedOpt.dataset.ayat);
+            if (parseInt(ayatDari) < 1 || parseInt(ayatDari) > maxAyat) {
+                api.toast(`Ayat mulai harus antara 1 dan ${maxAyat}.`, 'error');
+                return;
+            }
+            if (parseInt(ayatSampai) < 1 || parseInt(ayatSampai) > maxAyat) {
+                api.toast(`Ayat sampai harus antara 1 dan ${maxAyat}.`, 'error');
+                return;
+            }
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const kelasId = params.get('kelas_id') || currentKelasId;
+        if (!kelasId) {
+            api.toast('Mohon tunggu, memuat profil kelas...', 'warning');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('kelas_id', kelasId);
+        formData.append('nama_surat', namaSurat);
+        formData.append('bab', bab);
+        formData.append('ayat_dari', ayatDari);
+        formData.append('ayat_sampai', ayatSampai);
+        formData.append('pesan_tugas', pesanTugas);
+        formData.append('tanggal_tugas', new Date().toLocaleDateString('sv-SE'));
+        formData.append('status_publikasi', 'published');
+        if (deadline) { formData.append('deadline', deadline); }
+        if (selectedAudioFile) { formData.append('audio_panduan', selectedAudioFile); }
+
+        try {
+            const res = await api.upload('/api/guru/simpan-target.php', formData);
+            api.toast('Tugas berhasil dibuat dan disebarkan!', 'success');
+            setTimeout(() => window.location.href = 'beranda.html', 1500);
+        } catch (err) {
+            api.toast(err.message || 'Gagal menyimpan tugas.', 'error');
+        }
+    }
+
+    async function saveDraftTugas() {
+        const namaSurat = document.getElementById('nama-surat').value;
+        const bab = document.getElementById('bab-tugas').value;
+        const ayatDari = document.getElementById('ayat-dari').value;
+        const ayatSampai = document.getElementById('ayat-sampai').value;
+        const pesanTugas = document.getElementById('pesan-tugas').value;
+        const deadline = document.getElementById('deadline').value;
+
+        if (!namaSurat) { api.toast('Pilih surah terlebih dahulu.', 'error'); return; }
+        if (!ayatDari || !ayatSampai) { api.toast('Ayat dari dan sampai wajib diisi.', 'error'); return; }
+        if (parseInt(ayatSampai) < parseInt(ayatDari)) { api.toast('Ayat sampai harus >= ayat dari.', 'error'); return; }
+
+        const selectSurat = document.getElementById('nama-surat');
+        const selectedOpt = selectSurat.options[selectSurat.selectedIndex];
+        if (selectedOpt && selectedOpt.value) {
+            const maxAyat = parseInt(selectedOpt.dataset.ayat);
+            if (parseInt(ayatDari) < 1 || parseInt(ayatDari) > maxAyat) {
+                api.toast(`Ayat mulai harus antara 1 and ${maxAyat}.`, 'error');
+                return;
+            }
+            if (parseInt(ayatSampai) < 1 || parseInt(ayatSampai) > maxAyat) {
+                api.toast(`Ayat sampai harus antara 1 and ${maxAyat}.`, 'error');
+                return;
+            }
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const kelasId = params.get('kelas_id') || currentKelasId;
+        if (!kelasId) {
+            api.toast('Mohon tunggu, memuat profil kelas...', 'warning');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('kelas_id', kelasId);
+        formData.append('nama_surat', namaSurat);
+        formData.append('bab', bab);
+        formData.append('ayat_dari', ayatDari);
+        formData.append('ayat_sampai', ayatSampai);
+        formData.append('pesan_tugas', pesanTugas);
+        formData.append('tanggal_tugas', new Date().toLocaleDateString('sv-SE'));
+        formData.append('status_publikasi', 'draft');
+        if (deadline) { formData.append('deadline', deadline); }
+        if (selectedAudioFile) { formData.append('audio_panduan', selectedAudioFile); }
+
+        try {
+            const res = await api.upload('/api/guru/simpan-target.php', formData);
+            api.toast('Draft tugas berhasil disimpan!', 'success');
+            setTimeout(() => window.location.href = 'beranda.html', 1500);
+        } catch (err) {
+            api.toast(err.message || 'Gagal menyimpan draft tugas.', 'error');
+        }
+    }
+    </script>
+    </main>
+</body>
+</html>

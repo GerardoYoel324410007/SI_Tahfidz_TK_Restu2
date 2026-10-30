@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Log Aktivitas Login - Tahfidz BA Admin</title>
+    <meta name="description" content="Pantau semua aktivitas login ke sistem Tahfidz BA untuk keperluan keamanan.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": { "tertiary": "#003580","primary-fixed": "#a9f3be","on-primary": "#ffffff","surface-tint": "#226b41","surface-bright": "#f8faf9","on-primary-container": "#8ad2a0","secondary-container": "#fe8a29","secondary-fixed-dim": "#ffb786","surface-dim": "#d8dada","surface-container-highest": "#e1e3e2","primary": "#004323","error": "#ba1a1a","on-tertiary-container": "#aac1ff","on-surface": "#191c1c","inverse-surface": "#2e3131","primary-fixed-dim": "#8dd6a3","on-secondary": "#ffffff","surface": "#f8faf9","secondary-fixed": "#ffdcc6","surface-container-high": "#e6e9e8","on-surface-variant": "#404941","outline": "#707a70","on-tertiary-fixed-variant": "#00429c","on-secondary-fixed": "#311300","error-container": "#ffdad6","tertiary-fixed": "#d9e2ff","tertiary-fixed-dim": "#b0c6ff","on-tertiary-fixed": "#001945","background": "#f8faf9","tertiary-container": "#004aae","secondary": "#964900","surface-container-lowest": "#ffffff","on-secondary-container": "#642f00","surface-container-low": "#f2f4f3","on-tertiary": "#ffffff","surface-container": "#eceeed","on-error": "#ffffff","inverse-primary": "#8dd6a3","on-primary-fixed": "#00210e","on-background": "#191c1c","on-secondary-fixed-variant": "#723600","on-primary-fixed-variant": "#00522c","on-error-container": "#93000a","surface-variant": "#e1e3e2","primary-container": "#0d5c34","outline-variant": "#bfc9bf","inverse-on-surface": "#eff1f0" },
+                "borderRadius": {"DEFAULT": "1rem","lg": "2rem","xl": "3rem","full": "9999px"},
+                "spacing": {"base": "8px","margin-mobile": "16px","container-padding-sm": "16px","container-padding-md": "24px","margin-desktop": "48px","gutter": "20px"},
+                "fontFamily": {"label-md": ["Plus Jakarta Sans"],"headline-sm": ["Plus Jakarta Sans"],"body-md": ["Plus Jakarta Sans"],"body-lg": ["Plus Jakarta Sans"],"headline-lg": ["Plus Jakarta Sans"],"headline-md": ["Plus Jakarta Sans"]},
+                "fontSize": { "label-md": ["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],"body-lg": ["18px",{"lineHeight":"26px","fontWeight":"500"}],"headline-lg": ["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-md": ["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}] }
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8faf9; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="bg-surface-bright text-on-surface antialiased">
+    <!-- Desktop Side Navigation -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-primary shadow-[40px_0_60px_-15px_rgba(0,67,35,0.15)] flex-col py-8 z-50 transform transition-transform duration-300 -translate-x-full md:translate-x-0 hidden md:flex overflow-y-auto"></aside>
+
+    <!-- Top Navigation -->
+    <header class="h-20 w-full md:w-[calc(100%-18rem)] sticky top-0 z-40 bg-surface-bright/80 backdrop-blur-md shadow-sm flex justify-between items-center px-4 md:px-margin-desktop ml-0 md:ml-72">
+        <div class="flex items-center gap-3">
+            <button id="mobile-menu-btn" class="md:hidden p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <button id="desktop-collapse-btn" class="hidden md:flex p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant mr-2" title="Lipat Menu">
+                <span class="material-symbols-outlined">menu_open</span>
+            </button>
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-tertiary" style="font-variation-settings:'FILL' 1;">manage_history</span>
+                <h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">Log Aktivitas Login</h2>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button id="btn-export" onclick="exportCSV()" class="px-4 py-2 bg-tertiary/10 text-tertiary font-bold rounded-lg border border-tertiary/20 flex items-center gap-2 hover:bg-tertiary/20 active:scale-95 transition-all text-sm">
+                <span class="material-symbols-outlined text-sm">download</span>
+                Export CSV
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="ml-0 md:ml-72 p-margin-mobile md:p-margin-desktop pb-32 w-full md:w-[calc(100%-18rem)]">
+
+        <!-- Title -->
+        <div class="mb-8">
+            <h3 class="font-headline-lg text-headline-lg text-primary">Log Aktivitas Login</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Audit trail semua percobaan login ke sistem — berhasil maupun gagal.</p>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="bg-white rounded-xl shadow-sm border border-outline-variant/20 p-5 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                <div class="lg:col-span-1">
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Dari Tanggal</label>
+                    <input type="date" id="filter-dari" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                </div>
+                <div class="lg:col-span-1">
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Sampai Tanggal</label>
+                    <input type="date" id="filter-sampai" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Role</label>
+                    <select id="filter-role" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                        <option value="">Semua Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="guru">Guru</option>
+                        <option value="karyawan">Karyawan</option>
+                        <option value="wali_murid">Wali Murid</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Status</label>
+                    <select id="filter-status" class="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                        <option value="">Semua Status</option>
+                        <option value="berhasil">Berhasil</option>
+                        <option value="gagal">Gagal</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Cari Nama / ID</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="filter-search" placeholder="Nama atau nomor ID..." class="flex-1 border border-outline-variant rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                        <button onclick="applyFilter()" class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:brightness-105 active:scale-95 transition-all flex-shrink-0">
+                            <span class="material-symbols-outlined text-sm">search</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl border border-outline-variant/20 p-5 flex items-center gap-4">
+                <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-primary text-2xl">login</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-on-surface" id="stat-total">-</p>
+                    <p class="text-xs text-on-surface-variant">Total Login</p>
+                </div>
+            </div>
+            <div class="bg-green-50 rounded-xl border border-green-100 p-5 flex items-center gap-4">
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-green-700 text-2xl" style="font-variation-settings:'FILL' 1;">check_circle</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-green-700" id="stat-berhasil">-</p>
+                    <p class="text-xs text-green-600">Berhasil</p>
+                </div>
+            </div>
+            <div class="bg-red-50 rounded-xl border border-red-100 p-5 flex items-center gap-4">
+                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-red-600 text-2xl" style="font-variation-settings:'FILL' 1;">cancel</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-red-600" id="stat-gagal">-</p>
+                    <p class="text-xs text-red-500">Gagal</p>
+                </div>
+            </div>
+            <div class="bg-blue-50 rounded-xl border border-blue-100 p-5 flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-blue-700 text-2xl">people</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-blue-700" id="stat-unik">-</p>
+                    <p class="text-xs text-blue-600">User Unik</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant/30">
+                <p class="font-semibold text-on-surface" id="table-info">Memuat data...</p>
+                <div class="flex items-center gap-2">
+                    <button onclick="changePage(-1)" id="btn-prev" class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container transition-all disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+                        <span class="material-symbols-outlined text-sm">chevron_left</span>
+                    </button>
+                    <span class="text-sm text-on-surface-variant px-2" id="page-info">1 / 1</span>
+                    <button onclick="changePage(1)" id="btn-next" class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container transition-all disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+                        <span class="material-symbols-outlined text-sm">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-separate border-spacing-0">
+                    <thead>
+                        <tr class="bg-surface-container-low">
+                            <th class="px-5 py-4 font-label-md text-on-surface-variant border-b border-outline-variant text-xs">Waktu</th>
+                            <th class="px-5 py-4 font-label-md text-on-surface-variant border-b border-outline-variant text-xs">Pengguna</th>
+                            <th class="px-5 py-4 font-label-md text-on-surface-variant border-b border-outline-variant text-xs">Role</th>
+                            <th class="px-5 py-4 font-label-md text-on-surface-variant border-b border-outline-variant text-xs">Status</th>
+                            <th class="px-5 py-4 font-label-md text-on-surface-variant border-b border-outline-variant text-xs">IP Address</th>
+                            <th class="px-5 py-4 font-label-md text-on-surface-variant border-b border-outline-variant text-xs">Perangkat & Browser</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-table-body" class="divide-y divide-outline-variant/20">
+                        <tr><td colspan="6" class="px-6 py-10 text-center text-on-surface-variant">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Nav -->
+    <nav class="fixed bottom-0 w-full md:hidden rounded-t-lg shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] bg-surface-container-lowest z-50 flex justify-around items-center h-16">
+        <a class="text-on-surface-variant flex flex-col items-center justify-center p-2" href="dashboard.html">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="font-label-md text-[10px]">Home</span>
+        </a>
+        <a class="text-on-surface-variant flex flex-col items-center justify-center p-2" href="manajemen-pengguna.html">
+            <span class="material-symbols-outlined">person_4</span>
+            <span class="font-label-md text-[10px]">Users</span>
+        </a>
+        <a class="text-primary font-bold flex flex-col items-center justify-center p-2" href="#">
+            <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">manage_history</span>
+            <span class="font-label-md text-[10px]">Log</span>
+        </a>
+    </nav>
+
+    <script>
+    const roleLabel  = { admin: 'Admin', guru: 'Guru', karyawan: 'Karyawan', wali_murid: 'Wali Murid' };
+    const alasanLabel = {
+        password_salah:       'Password salah',
+        akun_nonaktif:        'Akun nonaktif',
+        user_tidak_ditemukan: 'User tidak ditemukan',
+    };
+
+    /**
+     * Parser cerdas User-Agent ke format visual Perangkat & Browser
+     */
+    function parseUserAgent(ua) {
+        if (!ua || ua === '-' || ua.trim() === '') {
+            return {
+                browser: 'Tidak Diketahui',
+                os: 'Perangkat Lain',
+                icon: 'devices',
+                badgeBg: 'bg-gray-100',
+                badgeText: 'text-gray-600'
+            };
+        }
+        
+        let browser = 'Browser Lain';
+        let os = 'Unknown OS';
+        let icon = 'desktop_windows';
+        let badgeBg = 'bg-blue-50';
+        let badgeText = 'text-blue-700';
+
+        const u = ua.toLowerCase();
+
+        // 1. Detect OS & Device Type
+        if (u.includes('android')) {
+            os = 'Android Mobile';
+            if (u.includes('tablet')) os = 'Android Tablet';
+            icon = 'smartphone';
+            badgeBg = 'bg-emerald-50';
+            badgeText = 'text-emerald-700';
+        } else if (u.includes('iphone')) {
+            os = 'iPhone (iOS)';
+            icon = 'smartphone';
+            badgeBg = 'bg-purple-50';
+            badgeText = 'text-purple-700';
+        } else if (u.includes('ipad')) {
+            os = 'iPad (iPadOS)';
+            icon = 'tablet_mac';
+            badgeBg = 'bg-purple-50';
+            badgeText = 'text-purple-700';
+        } else if (u.includes('windows nt 10.0')) {
+            os = 'Windows 10 / 11';
+            icon = 'desktop_windows';
+            badgeBg = 'bg-blue-50';
+            badgeText = 'text-blue-700';
+        } else if (u.includes('windows nt 6.3')) {
+            os = 'Windows 8.1';
+            icon = 'desktop_windows';
+            badgeBg = 'bg-blue-50';
+            badgeText = 'text-blue-700';
+        } else if (u.includes('windows nt 6.1')) {
+            os = 'Windows 7';
+            icon = 'desktop_windows';
+            badgeBg = 'bg-blue-50';
+            badgeText = 'text-blue-700';
+        } else if (u.includes('macintosh') || u.includes('mac os x')) {
+            os = 'macOS';
+            icon = 'laptop_mac';
+            badgeBg = 'bg-slate-100';
+            badgeText = 'text-slate-800';
+        } else if (u.includes('linux')) {
+            os = 'Linux';
+            icon = 'terminal';
+            badgeBg = 'bg-amber-50';
+            badgeText = 'text-amber-800';
+        } else if (u.includes('cros')) {
+            os = 'ChromeOS';
+            icon = 'laptop_chromebook';
+            badgeBg = 'bg-teal-50';
+            badgeText = 'text-teal-700';
+        }
+
+        // 2. Detect Browser Name & Major Version
+        if (u.includes('edg/')) {
+            const m = ua.match(/edg\/([\d.]+)/i);
+            browser = 'Edge ' + (m ? m[1].split('.')[0] : '');
+        } else if ((u.includes('chrome') || u.includes('crios')) && !u.includes('edg/') && !u.includes('opr/')) {
+            const m = ua.match(/(?:chrome|crios)\/([\d.]+)/i);
+            browser = 'Chrome ' + (m ? m[1].split('.')[0] : '');
+        } else if (u.includes('firefox') || u.includes('fxios')) {
+            const m = ua.match(/(?:firefox|fxios)\/([\d.]+)/i);
+            browser = 'Firefox ' + (m ? m[1].split('.')[0] : '');
+        } else if (u.includes('safari') && !u.includes('chrome') && !u.includes('crios') && !u.includes('android')) {
+            const m = ua.match(/version\/([\d.]+)/i);
+            browser = 'Safari ' + (m ? m[1].split('.')[0] : '');
+        } else if (u.includes('opr/')) {
+            const m = ua.match(/opr\/([\d.]+)/i);
+            browser = 'Opera ' + (m ? m[1].split('.')[0] : '');
+        } else if (u.includes('samsungbrowser')) {
+            const m = ua.match(/samsungbrowser\/([\d.]+)/i);
+            browser = 'Samsung Internet ' + (m ? m[1].split('.')[0] : '');
+        }
+
+        return { browser, os, icon, badgeBg, badgeText };
+    }
+
+    let currentPage = 1;
+    let totalPages  = 1;
+
+    // Inisialisasi filter tanggal = hari ini
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('filter-dari').value   = today;
+    document.getElementById('filter-sampai').value = today;
+
+    // Enter key on search
+    document.getElementById('filter-search').addEventListener('keydown', e => {
+        if (e.key === 'Enter') applyFilter();
+    });
+
+    function getFilters() {
+        return {
+            tanggal_dari:   document.getElementById('filter-dari').value   || today,
+            tanggal_sampai: document.getElementById('filter-sampai').value || today,
+            role:           document.getElementById('filter-role').value,
+            status:         document.getElementById('filter-status').value,
+            search:         document.getElementById('filter-search').value.trim(),
+        };
+    }
+
+    function applyFilter() {
+        currentPage = 1;
+        loadLog();
+    }
+
+    function changePage(dir) {
+        const newPage = currentPage + dir;
+        if (newPage < 1 || newPage > totalPages) return;
+        currentPage = newPage;
+        loadLog();
+    }
+
+    async function loadLog() {
+        const tbody = document.getElementById('log-table-body');
+        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-on-surface-variant">Memuat...</td></tr>';
+
+        const f = getFilters();
+        const params = new URLSearchParams({
+            ...f,
+            page:     currentPage,
+            per_page: 50,
+        });
+
+        try {
+            const res = await api.get('/api/admin/log-login.php?' + params.toString());
+            const { logs, summary, pagination } = res.data;
+
+            // Update stats
+            document.getElementById('stat-total').textContent    = summary.total    ?? 0;
+            document.getElementById('stat-berhasil').textContent = summary.berhasil ?? 0;
+            document.getElementById('stat-gagal').textContent    = summary.gagal    ?? 0;
+            document.getElementById('stat-unik').textContent     = summary.unik_user ?? 0;
+
+            // Pagination
+            totalPages = pagination.total_pages || 1;
+            document.getElementById('page-info').textContent  = `${pagination.page} / ${totalPages}`;
+            document.getElementById('btn-prev').disabled = pagination.page <= 1;
+            document.getElementById('btn-next').disabled = pagination.page >= totalPages;
+            document.getElementById('table-info').textContent =
+                `Menampilkan ${logs.length} dari ${pagination.total} entri`;
+
+            // Render rows
+            if (!logs || logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-on-surface-variant">Tidak ada data ditemukan untuk filter ini.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = logs.map(l => {
+                const waktu  = new Date(l.created_at.replace(' ', 'T'));
+                const tgl    = waktu.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+                const jam    = waktu.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const isOk   = l.status === 'berhasil';
+                const badge  = isOk
+                    ? '<span class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-100 text-green-800 rounded-full text-[11px] font-bold"><span class="material-symbols-outlined text-[12px]" style="font-variation-settings:\'FILL\' 1;">check_circle</span>Berhasil</span>'
+                    : `<div><span class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-[11px] font-bold"><span class="material-symbols-outlined text-[12px]" style="font-variation-settings:\'FILL\' 1;">cancel</span>Gagal</span>${l.alasan_gagal ? `<p class="text-[10px] text-red-500 mt-0.5 pl-1">${alasanLabel[l.alasan_gagal] || l.alasan_gagal}</p>` : ''}</div>`;
+
+                const ua = l.user_agent || '-';
+                const uaShort = ua.length > 60 ? ua.substring(0, 58) + '…' : ua;
+
+                return `<tr class="hover:bg-surface-bright transition-colors">
+                    <td class="px-5 py-3.5 text-xs text-on-surface-variant whitespace-nowrap">
+                        <p class="font-medium text-on-surface">${jam}</p>
+                        <p>${tgl}</p>
+                    </td>
+                    <td class="px-5 py-3.5">
+                        <p class="text-sm font-medium text-on-surface">${l.nama || '-'}</p>
+                        <p class="text-xs text-on-surface-variant">${l.nomor_identitas}</p>
+                    </td>
+                    <td class="px-5 py-3.5 text-sm text-on-surface-variant">${roleLabel[l.role] || (l.role || '-')}</td>
+                    <td class="px-5 py-3.5">${badge}</td>
+                    <td class="px-5 py-3.5 text-xs text-on-surface-variant font-mono">${l.ip_address || '-'}</td>
+                    <td class="px-5 py-3.5 text-xs text-on-surface-variant max-w-[200px]" title="${ua}">${uaShort}</td>
+                </tr>`;
+            }).join('');
+
+        } catch(e) {
+            console.error('Gagal memuat log:', e);
+            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-red-500">Gagal memuat data log.</td></tr>';
+        }
+    }
+
+    function exportCSV() {
+        const f = getFilters();
+        const params = new URLSearchParams(f);
+        window.open(api.toAbsoluteUrl('/api/admin/log-login-export.php?' + params.toString()), '_blank');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await authGuard.protect('admin');
+        if (!user) return;
+        loadLog();
+    });
+    </script>
+</body>
+</html>

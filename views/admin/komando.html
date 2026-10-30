@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Pengumuman Global - Tahfidz BA Admin</title>
+    <meta name="description" content="Kirim pengumuman massal ke seluruh guru dan wali murid.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": { "tertiary": "#003580","primary-fixed": "#a9f3be","on-primary": "#ffffff","surface-tint": "#226b41","surface-bright": "#f8faf9","on-primary-container": "#8ad2a0","secondary-container": "#fe8a29","secondary-fixed-dim": "#ffb786","surface-dim": "#d8dada","surface-container-highest": "#e1e3e2","primary": "#004323","error": "#ba1a1a","on-tertiary-container": "#aac1ff","on-surface": "#191c1c","inverse-surface": "#2e3131","primary-fixed-dim": "#8dd6a3","on-secondary": "#ffffff","surface": "#f8faf9","secondary-fixed": "#ffdcc6","surface-container-high": "#e6e9e8","on-surface-variant": "#404941","outline": "#707a70","on-tertiary-fixed-variant": "#00429c","on-secondary-fixed": "#311300","error-container": "#ffdad6","tertiary-fixed": "#d9e2ff","tertiary-fixed-dim": "#b0c6ff","on-tertiary-fixed": "#001945","background": "#f8faf9","tertiary-container": "#004aae","secondary": "#964900","surface-container-lowest": "#ffffff","on-secondary-container": "#642f00","surface-container-low": "#f2f4f3","on-tertiary": "#ffffff","surface-container": "#eceeed","on-error": "#ffffff","inverse-primary": "#8dd6a3","on-primary-fixed": "#00210e","on-background": "#191c1c","on-secondary-fixed-variant": "#723600","on-primary-fixed-variant": "#00522c","on-error-container": "#93000a","surface-variant": "#e1e3e2","primary-container": "#0d5c34","outline-variant": "#bfc9bf","inverse-on-surface": "#eff1f0" },
+                "borderRadius": {"DEFAULT": "1rem","lg": "2rem","xl": "3rem","full": "9999px"},
+                "spacing": {"base": "8px","margin-mobile": "16px","container-padding-sm": "16px","container-padding-md": "24px","margin-desktop": "48px","gutter": "20px"},
+                "fontFamily": {"label-md": ["Plus Jakarta Sans"],"headline-sm": ["Plus Jakarta Sans"],"body-md": ["Plus Jakarta Sans"],"body-lg": ["Plus Jakarta Sans"],"headline-lg": ["Plus Jakarta Sans"],"headline-md": ["Plus Jakarta Sans"]},
+                "fontSize": { "label-md": ["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],"body-lg": ["18px",{"lineHeight":"26px","fontWeight":"500"}],"headline-lg": ["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-md": ["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}] }
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8faf9; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="bg-surface-bright text-on-surface antialiased min-h-screen">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-primary shadow-[40px_0_60px_-15px_rgba(0,67,35,0.15)] flex-col py-8 z-50 transform transition-transform duration-300 -translate-x-full md:translate-x-0 hidden md:flex overflow-y-auto"></aside>
+
+    <!-- Top Navigation -->
+    <header class="h-20 shrink-0 w-full md:w-[calc(100%-18rem)] sticky top-0 z-40 bg-white shadow-sm flex justify-between items-center px-4 md:px-margin-desktop md:ml-72 transition-all duration-300">
+            <div class="flex items-center gap-2 md:gap-3 min-w-0">
+                <button id="mobile-menu-btn" class="md:hidden p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant flex-shrink-0">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <!-- Desktop Collapse Button -->
+                <button id="desktop-collapse-btn" class="hidden md:flex p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant mr-2 flex-shrink-0" title="Lipat Menu">
+                    <span class="material-symbols-outlined">menu_open</span>
+                </button>
+                <h2 class="text-base md:text-headline-sm font-bold text-on-surface truncate">Pusat Komando Pengumuman</h2>
+            </div>
+            <div class="flex items-center gap-4 flex-shrink-0">
+                <button onclick="openHistoryModal()" class="bg-surface-container-high text-on-surface p-2.5 md:px-6 md:py-2 rounded-full font-label-md hover:bg-surface-dim transition-colors flex items-center gap-2" title="Lihat Riwayat">
+                    <span class="material-symbols-outlined text-[20px]">history</span>
+                    <span class="hidden md:inline">Lihat Riwayat</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="ml-0 md:ml-72 p-margin-mobile md:p-margin-desktop pb-32 w-full md:w-[calc(100%-18rem)] transition-all duration-300">
+            <div class="max-w-4xl mx-auto space-y-8">
+                
+                <div class="bg-gradient-to-r from-secondary-container to-secondary rounded-[24px] p-6 md:p-8 text-white shadow-lg flex justify-between items-center relative overflow-hidden">
+                    <div class="relative z-10 max-w-xl">
+                        <h3 class="text-headline-md md:text-headline-lg font-bold mb-2">Blast Pengumuman</h3>
+                        <p class="text-sm md:text-body-md opacity-90">Kirim pesan penting ke aplikasi Wali Murid dan Guru secara instan. Notifikasi akan muncul sebagai Push Notification.</p>
+                    </div>
+                    <span class="material-symbols-outlined text-[120px] opacity-25 absolute -right-6 -bottom-6 rotate-12 pointer-events-none">cell_tower</span>
+                    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4yKSIvPjwvc3ZnPg==')] opacity-50"></div>
+                </div>
+
+                <div class="bg-white rounded-[24px] shadow-sm border border-outline-variant/30 p-8 space-y-6 relative z-20">
+                    
+                    <!-- Target Audience -->
+                    <div>
+                        <label class="font-label-md text-primary uppercase tracking-wider text-xs mb-3 block">Target Penerima</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="target-kelas">
+                            <!-- Kelas dimuat dari API -->
+                        </div>
+                    </div>
+
+                    <!-- Message Compose -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="font-label-md text-primary uppercase tracking-wider text-xs mb-2 block">Judul Pengumuman</label>
+                            <input id="judul-pengumuman" type="text" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-xl p-4 font-bold text-on-surface text-lg transition-all" placeholder="Contoh: Libur Awal Ramadhan 1445 H">
+                        </div>
+                        <div>
+                            <label class="font-label-md text-primary uppercase tracking-wider text-xs mb-2 block">Isi Pesan</label>
+                            <textarea id="isi-pengumuman" maxlength="2000" oninput="updateCharCounter(this)" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-xl p-4 font-body-md text-on-surface h-40 resize-none transition-all" placeholder="Ketik isi pengumuman detail di sini..."></textarea>
+                            <div class="flex justify-end mt-2">
+                                <span id="char-counter" class="text-label-md text-on-surface-variant">0/2000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attachment -->
+                    <div>
+                        <label class="font-label-md text-primary uppercase tracking-wider text-xs mb-2 block">Lampiran (Opsional)</label>
+                        <label for="lampiran-file" class="border-2 border-dashed border-outline-variant rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-low hover:border-primary transition-colors group">
+                            <span class="material-symbols-outlined text-[32px] text-on-surface-variant mb-2 group-hover:text-primary transition-colors">add_photo_alternate</span>
+                            <span id="lampiran-label" class="font-label-md text-on-surface">Klik untuk melampirkan gambar/PDF</span>
+                            <span class="text-xs text-on-surface-variant mt-1">Format: JPG, PNG, PDF (maks. 5MB)</span>
+                        </label>
+                        <input type="file" id="lampiran-file" accept="image/*,application/pdf" class="hidden" onchange="handleLampiran(this)">
+                        <div id="lampiran-preview" class="hidden mt-2 flex items-center gap-2 p-3 bg-surface-container-low rounded-xl">
+                            <span class="material-symbols-outlined text-primary">attach_file</span>
+                            <span id="lampiran-filename" class="text-sm font-semibold text-on-surface flex-1 truncate"></span>
+                            <button type="button" onclick="hapusLampiran()" class="p-1 hover:bg-error-container/30 rounded-full transition-colors">
+                                <span class="material-symbols-outlined text-error text-sm">close</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Action -->
+                    <div class="pt-6 border-t border-outline-variant flex justify-end">
+                        <button onclick="kirimPengumuman()" class="bg-primary text-white px-10 py-4 rounded-xl font-bold shadow-[0_10px_20px_rgba(0,67,35,0.2)] hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined">send</span> Kirim Pengumuman
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+
+    <script>
+    let selectedKelas = [];
+
+    function handleLampiran(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            api.toast('Ukuran file maksimal 5MB', 'error');
+            input.value = '';
+            return;
+        }
+        document.getElementById('lampiran-filename').textContent = file.name;
+        document.getElementById('lampiran-preview').classList.remove('hidden');
+        document.getElementById('lampiran-label').textContent = 'File terpilih — klik untuk ganti';
+    }
+
+    function hapusLampiran() {
+        const input = document.getElementById('lampiran-file');
+        input.value = '';
+        document.getElementById('lampiran-preview').classList.add('hidden');
+        document.getElementById('lampiran-label').textContent = 'Klik untuk melampirkan gambar/PDF';
+    }
+
+    function updateCharCounter(textarea) {
+        const counter = document.getElementById('char-counter');
+        const length = textarea.value.length;
+        counter.textContent = `${length}/2000`;
+        
+        if (length > 1800) {
+            counter.classList.add('text-error');
+            counter.classList.remove('text-on-surface-variant');
+        } else {
+            counter.classList.remove('text-error');
+            counter.classList.add('text-on-surface-variant');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await authGuard.protect('admin');
+        if (!user) return;
+
+        // Load kelas options
+        try {
+            const res = await api.get('/api/admin/dashboard-stats.php');
+            const container = document.getElementById('target-kelas');
+            let html = `
+                <label class="border-2 border-primary/20 bg-primary/5 p-4 rounded-xl flex items-center gap-3 cursor-pointer hover:border-primary transition-colors">
+                    <input type="checkbox" id="select-all-kelas" class="w-5 h-5 text-primary rounded focus:ring-primary" onchange="toggleAllKelas(this)">
+                    <span class="font-bold text-on-surface">Semua Kelas</span>
+                </label>`;
+            res.data.kelas.forEach(k => {
+                html += `
+                <label class="border-2 border-outline-variant bg-surface-container-lowest p-4 rounded-xl flex items-center gap-3 cursor-pointer hover:border-primary transition-colors">
+                    <input type="checkbox" class="w-5 h-5 text-primary rounded focus:ring-primary kelas-checkbox" value="${k.kelas_id}" onchange="updateKelasSelection()">
+                    <span class="font-bold text-on-surface">${k.nama_kelas}</span>
+                </label>`;
+            });
+            container.innerHTML = html;
+        } catch (err) {
+            console.error('Gagal memuat kelas:', err);
+        }
+    });
+
+    function toggleAllKelas(el) {
+        document.querySelectorAll('.kelas-checkbox').forEach(cb => { cb.checked = el.checked; });
+        updateKelasSelection();
+    }
+
+    function updateKelasSelection() {
+        const allCb = document.getElementById('select-all-kelas');
+        const checkboxes = document.querySelectorAll('.kelas-checkbox');
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        allCb.checked = allChecked;
+        selectedKelas = Array.from(checkboxes).filter(cb => cb.checked).map(cb => parseInt(cb.value));
+    }
+
+    async function kirimPengumuman() {
+        const judul = document.getElementById('judul-pengumuman').value.trim();
+        const isi = document.getElementById('isi-pengumuman').value.trim();
+
+        if (!judul || !isi) {
+            api.toast('Judul dan isi pengumuman wajib diisi.', 'error');
+            return;
+        }
+        if (selectedKelas.length === 0) {
+            api.toast('Pilih minimal satu kelas target.', 'error');
+            return;
+        }
+
+        try {
+            const res = await api.post('/api/admin/kirim-pengumuman.php', {
+                judul: judul,
+                isi: isi,
+                target_kelas: selectedKelas
+            });
+            api.toast(`Pengumuman berhasil dikirim ke ${res.data.notif_terkirim} penerima!`, 'success');
+            document.getElementById('judul-pengumuman').value = '';
+            document.getElementById('isi-pengumuman').value = '';
+            document.querySelectorAll('.kelas-checkbox, #select-all-kelas').forEach(cb => cb.checked = false);
+            selectedKelas = [];
+            hapusLampiran();
+        } catch (err) {
+            api.toast(err.message || 'Gagal mengirim pengumuman.', 'error');
+        }
+    }
+
+    async function openHistoryModal() {
+        const modal = document.getElementById('history-modal');
+        const listContainer = document.getElementById('history-list');
+        listContainer.innerHTML = '<div class="text-center py-8 text-on-surface-variant">Memuat riwayat pengumuman...</div>';
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        try {
+            const res = await api.get('/api/admin/riwayat-pengumuman.php');
+            const data = res.data; // array of announcements
+            if (data && data.length > 0) {
+                listContainer.innerHTML = data.map(ann => {
+                    const dateStr = api.formatDateTime(ann.created_at);
+                    let targetStr = 'Semua Kelas';
+                    try {
+                        const targetIds = JSON.parse(ann.target_kelas);
+                        if (Array.isArray(targetIds)) {
+                            targetStr = `Kelas ID: ${targetIds.join(', ')}`;
+                        }
+                    } catch (e) {}
+
+                    return `
+                    <div class="p-4 bg-surface-container-low rounded-xl border border-outline-variant/30 space-y-2 text-left">
+                        <div class="flex justify-between items-center text-xs text-on-surface-variant font-semibold">
+                            <span>Target: <span class="bg-primary/10 text-primary px-2.5 py-0.5 rounded font-bold">${targetStr}</span></span>
+                            <span>${dateStr}</span>
+                        </div>
+                        <h5 class="font-bold text-on-surface text-sm">${ann.judul}</h5>
+                        <p class="text-xs text-on-surface-variant leading-relaxed font-normal">${ann.isi}</p>
+                    </div>`;
+                }).join('');
+            } else {
+                listContainer.innerHTML = '<div class="text-center py-8 text-on-surface-variant">Belum ada riwayat pengumuman yang terkirim.</div>';
+            }
+        } catch (err) {
+            listContainer.innerHTML = `<div class="text-center py-8 text-error">Gagal memuat riwayat: ${err.message}</div>`;
+        }
+    }
+
+    function closeHistoryModal() {
+        const modal = document.getElementById('history-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    </script>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl p-8 shadow-2xl relative border border-gray-100 flex flex-col max-h-[80vh]">
+            <h3 class="font-headline-sm text-headline-sm text-primary mb-4 shrink-0">Riwayat Pengumuman Global</h3>
+            <div id="history-list" class="space-y-4 overflow-y-auto flex-1 pr-2 max-h-[50vh]">
+                <!-- Diisi dinamis -->
+            </div>
+            <div class="flex justify-end mt-6 shrink-0">
+                <button onclick="closeHistoryModal()" class="px-6 py-2.5 bg-surface-container-high text-on-surface rounded-xl font-bold">Tutup</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

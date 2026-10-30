@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Progres Hafalan - Tahfidz BA Restu Z</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": { "tertiary": "#003580","primary-fixed": "#a9f3be","on-primary": "#ffffff","primary": "#004323","error": "#ba1a1a","on-surface": "#191c1c","surface-bright": "#f8faf9","surface-container-lowest": "#ffffff","surface-container": "#eceeed","outline-variant": "#bfc9bf","on-surface-variant": "#404941","secondary": "#964900","secondary-container": "#fe8a29","primary-fixed-dim": "#8dd6a3","on-primary-fixed-variant": "#00522c" },
+                "borderRadius": {"DEFAULT": "1rem","lg": "1.5rem","full": "9999px"},
+                "fontFamily": {"label-md": ["Plus Jakarta Sans"],"headline-sm": ["Plus Jakarta Sans"],"body-md": ["Plus Jakarta Sans"],"headline-md": ["Plus Jakarta Sans"]},
+                "fontSize": { "label-md": ["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-md": ["24px",{"lineHeight":"32px","fontWeight":"700"}] }
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="bg-surface-bright text-on-surface min-h-screen antialiased">
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-primary shadow-[40px_0_60px_-15px_rgba(0,67,35,0.15)] flex-col py-8 z-50 transform transition-transform duration-300 -translate-x-full md:translate-x-0 hidden md:flex overflow-y-auto"></aside>
+
+    <main class="ml-0 md:ml-72 min-h-screen w-full md:w-[calc(100%-18rem)] pb-32">
+        <header class="h-20 sticky top-0 z-40 bg-surface-bright/80 backdrop-blur-md shadow-sm flex justify-between items-center px-4 md:px-margin-desktop">
+            <div class="flex items-center gap-3">
+                <button id="mobile-menu-btn" class="md:hidden p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant flex-shrink-0">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <!-- Desktop Collapse Button -->
+                <button id="desktop-collapse-btn" class="hidden md:flex p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant mr-2" title="Lipat Menu">
+                    <span class="material-symbols-outlined">menu_open</span>
+                </button>
+                <h2 class="font-headline-sm text-headline-sm font-bold">Progres Hafalan Kelas</h2>
+            </div>
+            <div class="flex items-center gap-2 md:gap-4">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="font-label-md text-label-md text-on-surface" id="header-nama">-</p>
+                        <p class="text-[12px] text-on-surface-variant">Wali Kelas</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-sm border-2 border-primary-fixed" id="header-initials">-</div>
+                </div>
+                <button onclick="authGuard.logout()" class="bg-error text-on-error px-4 py-2 rounded-full text-xs md:text-sm font-bold active:opacity-80 transition-all ml-1 md:ml-2">Logout</button>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 lg:p-12">
+            <div class="mb-8">
+                <h3 class="font-headline-md text-headline-md text-primary mb-2">Rekap Progres Siswa</h3>
+                <p class="font-body-md text-body-md text-on-surface-variant">Pantau perkembangan hafalan siswa per kelas</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm p-4 md:p-8">
+                <div class="flex flex-col sm:flex-row gap-4 mb-6 w-full">
+                    <select id="filter-bulan" class="w-full sm:w-auto py-2.5 px-4 bg-surface-bright border border-outline-variant rounded-lg">
+                        <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                        <option value="4">April</option><option value="5">Mei</option><option value="6" selected>Juni</option>
+                        <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                        <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                    </select>
+                    <select id="filter-tahun" class="w-full sm:w-auto py-2.5 px-4 bg-surface-bright border border-outline-variant rounded-lg">
+                        <option value="2025">2025</option><option value="2026" selected>2026</option>
+                    </select>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-separate border-spacing-0">
+                        <thead>
+                            <tr class="bg-surface-container-low">
+                                <th class="px-6 py-4 rounded-tl-lg font-label-md text-on-surface-variant border-b border-outline-variant">Siswa</th>
+                                <th class="px-6 py-4 font-label-md text-on-surface-variant border-b border-outline-variant hidden sm:table-cell">Total Setoran</th>
+                                <th class="px-6 py-4 font-label-md text-on-surface-variant border-b border-outline-variant">Diterima</th>
+                                <th class="px-6 py-4 font-label-md text-on-surface-variant border-b border-outline-variant">Perbaiki</th>
+                                <th class="px-6 py-4 rounded-tr-lg font-label-md text-on-surface-variant border-b border-outline-variant">Progres</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-outline-variant/30" id="progres-body">
+                            <tr><td colspan="5" class="px-6 py-8 text-center text-on-surface-variant">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await authGuard.protect('guru');
+        if (!user) return;
+        authGuard.initUserData(user);
+
+
+
+        async function loadProgres() {
+            const bulan = document.getElementById('filter-bulan').value;
+            const tahun = document.getElementById('filter-tahun').value;
+            const tbody = document.getElementById('progres-body');
+            tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-on-surface-variant">Memuat data...</td></tr>';
+            try {
+                const res = await api.get(`/api/guru/progres-kelas.php?bulan=${bulan}&tahun=${tahun}`);
+                const list = res.data || [];
+                if (list.length > 0) {
+                    tbody.innerHTML = list.map(s => {
+                        const initials = s.nama_lengkap.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+                        return `
+                        <tr class="hover:bg-surface-bright transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary text-sm">${initials}</div>
+                                    <div>
+                                        <span class="font-body-md text-on-surface font-semibold block">${s.nama_lengkap}</span>
+                                        <span class="text-[12px] text-on-surface-variant block sm:hidden">Setoran: ${s.total_setoran} (${s.persentase_berhasil}%)</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 font-body-md text-on-surface-variant hidden sm:table-cell">${s.total_setoran}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-label-md font-bold">${s.diterima}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 bg-rose-100 text-rose-800 rounded-full text-label-md font-bold">${s.perbaiki}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="hidden md:flex items-center gap-3 w-48">
+                                    <div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary rounded-full" style="width: ${s.persentase_berhasil}%"></div>
+                                    </div>
+                                    <span class="text-label-md font-bold text-primary">${s.persentase_berhasil}%</span>
+                                </div>
+                                <span class="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-bold md:hidden">${s.persentase_berhasil}%</span>
+                            </td>
+                        </tr>`;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-on-surface-variant">Tidak ada data progres siswa</td></tr>';
+                }
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-error">Gagal memuat data: ${err.message || 'Terjadi kesalahan'}</td></tr>`;
+            }
+        }
+
+        loadProgres();
+
+        document.getElementById('filter-bulan').addEventListener('change', loadProgres);
+        document.getElementById('filter-tahun').addEventListener('change', loadProgres);
+    });
+    </script>
+</body>
+</html>

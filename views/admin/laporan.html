@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Laporan & Rekap - Tahfidz Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": { "tertiary": "#003580","primary-fixed": "#a9f3be","on-primary": "#ffffff","primary": "#004323","error": "#ba1a1a","on-surface": "#191c1c","surface-bright": "#f8faf9","surface-container-lowest": "#ffffff","surface-container": "#eceeed","outline-variant": "#bfc9bf","on-surface-variant": "#404941","secondary": "#964900","secondary-container": "#fe8a29" },
+                "borderRadius": {"DEFAULT": "1rem","lg": "1.5rem","full": "9999px"},
+                "fontFamily": {"label-md": ["Plus Jakarta Sans"],"headline-sm": ["Plus Jakarta Sans"],"body-md": ["Plus Jakarta Sans"],"headline-md": ["Plus Jakarta Sans"]},
+                "fontSize": { "label-md": ["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-md": ["24px",{"lineHeight":"32px","fontWeight":"700"}] }
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+        .tab-btn.active { background:#004323; color:#fff; border-color:#004323; }
+        .tab-btn { transition: all .2s; }
+
+        .badge-diterima { background:#dcfce7; color:#16a34a; }
+        .badge-menunggu { background:#fef9c3; color:#ca8a04; }
+        .badge-perbaiki { background:#fee2e2; color:#dc2626; }
+        .badge-belum    { background:#f1f5f9; color:#64748b; }
+
+        .rekap-table { border-collapse: collapse; width: 100%; }
+        .rekap-table thead th { background:#004323; color:#fff; font-size:12px; padding:10px 12px; text-align:left; white-space:nowrap; }
+        .rekap-table thead th.text-center { text-align:center; }
+        .rekap-table tbody tr { border-bottom:1px solid #eceeed; transition:background .15s; }
+        .rekap-table tbody tr:hover { background:#f8faf9; }
+        .rekap-table tbody td { padding:9px 12px; font-size:13px; vertical-align:middle; }
+        .rekap-table tbody tr.kelas-header td { background:#e8f5ec; font-weight:700; color:#004323; font-size:12px; }
+
+        .panel { display:none; }
+        .panel.active { display:block; animation:fadeIn .25s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+        .skeleton { background:linear-gradient(90deg,#eceeed 25%,#f8faf9 50%,#eceeed 75%); background-size:200% 100%; animation:shimmer 1.2s infinite; border-radius:4px; display:block; }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        @media print {
+            aside, header, .no-print { display:none !important; }
+            main { margin-left:0 !important; width:100% !important; }
+            .rekap-table thead th { background:#004323 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+            .rekap-table tbody tr.kelas-header td { background:#e8f5ec !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="bg-surface-bright text-on-surface min-h-screen antialiased">
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-primary shadow-[40px_0_60px_-15px_rgba(0,67,35,0.15)] flex-col py-8 z-50 transform transition-transform duration-300 -translate-x-full md:translate-x-0 hidden md:flex overflow-y-auto"></aside>
+
+    <header class="h-20 w-full md:w-[calc(100%-18rem)] sticky top-0 z-40 bg-surface-bright/80 backdrop-blur-md shadow-sm flex justify-between items-center px-4 md:px-12 md:ml-72 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <button id="mobile-menu-btn" class="md:hidden p-2 hover:bg-surface-container rounded-full transition-all text-on-surface-variant">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <button id="desktop-collapse-btn" class="hidden md:flex p-2 hover:bg-surface-container rounded-full transition-all text-on-surface-variant mr-2" title="Lipat Menu">
+                <span class="material-symbols-outlined">menu_open</span>
+            </button>
+            <h2 class="font-headline-sm text-headline-sm font-bold">Laporan &amp; Rekap</h2>
+        </div>
+        <button id="btn-print" onclick="window.print()" class="no-print hidden items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:shadow-lg transition-all active:scale-95">
+            <span class="material-symbols-outlined text-[18px]">print</span> Cetak
+        </button>
+    </header>
+
+    <main class="ml-0 md:ml-72 min-h-screen w-full md:w-[calc(100%-18rem)] pb-32 transition-all duration-300">
+        <div class="p-6 md:p-12">
+
+            <div class="mb-8">
+                <h1 class="font-headline-md text-headline-md text-primary mb-1">Rekap &amp; Laporan</h1>
+                <p class="font-body-md text-body-md text-on-surface-variant">Lihat dan cetak rekap setoran siswa secara langsung</p>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="bg-white rounded-lg shadow-sm p-5 mb-6 no-print">
+
+                <!-- Tabs -->
+                <div class="flex flex-wrap gap-2 mb-5">
+                    <button id="tab-harian"  class="tab-btn active px-4 py-2 rounded-lg text-sm font-bold border border-primary text-white flex items-center gap-1" onclick="switchTab('harian')">
+                        <span class="material-symbols-outlined text-[18px]">today</span> Rekap Harian
+                    </button>
+                    <button id="tab-bulanan" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold border border-outline-variant text-on-surface-variant flex items-center gap-1" onclick="switchTab('bulanan')">
+                        <span class="material-symbols-outlined text-[18px]">calendar_month</span> Rekap Bulanan
+                    </button>
+                    <button id="tab-presensi" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold border border-outline-variant text-on-surface-variant flex items-center gap-1" onclick="switchTab('presensi')">
+                        <span class="material-symbols-outlined text-[18px]">fact_check</span> Presensi Tahfidz
+                    </button>
+                    <button id="tab-siswa"   class="tab-btn px-4 py-2 rounded-lg text-sm font-bold border border-outline-variant text-on-surface-variant flex items-center gap-1" onclick="switchTab('siswa')">
+                        <span class="material-symbols-outlined text-[18px]">group</span> Data Siswa
+                    </button>
+                </div>
+
+                <!-- ── Filter Harian ── -->
+                <div id="filter-harian" class="flex flex-wrap gap-3 items-end">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Tanggal</label>
+                        <input type="date" id="rekap-tanggal" class="py-2 px-3 bg-surface-bright border border-outline-variant rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Tampilan</label>
+                        <select id="rekap-mode" onchange="toggleKelasFilter()" class="py-2 px-3 bg-surface-bright border border-outline-variant rounded-lg text-sm">
+                            <option value="ringkasan">Ringkasan Per Kelas</option>
+                            <option value="detail">Detail Per Siswa</option>
+                        </select>
+                    </div>
+                    <!-- Filter kelas: hanya muncul saat mode=detail -->
+                    <div id="filter-kelas-harian" class="hidden">
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Filter Kelas</label>
+                        <select id="rekap-kelas-harian" class="py-2 px-3 bg-surface-bright border border-outline-variant rounded-lg text-sm">
+                            <option value="">Semua Kelas</option>
+                        </select>
+                    </div>
+                    <button onclick="loadRekapHarian()" class="bg-primary text-white px-5 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:shadow-lg transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-[18px]">search</span> Tampilkan
+                    </button>
+                </div>
+
+                <!-- ── Filter Bulanan ── -->
+                <div id="filter-bulanan" class="hidden flex-wrap gap-3 items-end">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Bulan</label>
+                        <select id="rekap-bulan" class="py-2 px-3 bg-surface-bright border border-outline-variant rounded-lg text-sm">
+                            <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                            <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                            <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                            <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Tahun</label>
+                        <select id="rekap-tahun" class="py-2 px-3 bg-surface-bright border border-outline-variant rounded-lg text-sm">
+                            <!-- Diisi dinamis -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Filter Kelas</label>
+                        <select id="rekap-kelas-bulanan" class="py-2 px-3 bg-surface-bright border border-outline-variant rounded-lg text-sm">
+                            <option value="">Semua Kelas</option>
+                        </select>
+                    </div>
+                    <button onclick="loadRekapBulanan()" class="bg-tertiary text-white px-5 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:shadow-lg transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-[18px]">search</span> Tampilkan
+                    </button>
+                </div>
+
+                <!-- ── Filter Presensi ── -->
+                <div id="filter-presensi" class="hidden flex-wrap gap-3 items-end">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Kelas</label>
+                        <select id="rekap-kelas-presensi" class="py-2 px-3 bg-surface-bright border border-outline-variant rounded-lg text-sm">
+                            <!-- Diisi dinamis -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Dari (Senin–Kamis)</label>
+                        <input type="date" id="presensi-dari" class="py-2 px-3 bg-surface-bright border border-outline-variant rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Sampai</label>
+                        <input type="date" id="presensi-sampai" class="py-2 px-3 bg-surface-bright border border-outline-variant rounded-lg text-sm">
+                    </div>
+                    <button onclick="loadRekapPresensiAdmin()" class="bg-primary text-white px-5 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:shadow-lg transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-[18px]">search</span> Tampilkan Presensi
+                    </button>
+                    <button onclick="downloadPresensiAdminCSV()" class="bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-emerald-800 transition-all active:scale-95 shadow-sm">
+                        <span class="material-symbols-outlined text-[18px]">download</span> Download CSV
+                    </button>
+                </div>
+
+                <!-- ── Filter Siswa ── -->
+                <div id="filter-siswa" class="hidden flex-wrap gap-3 items-end">
+                    <button onclick="loadDataSiswa()" class="bg-secondary text-white px-5 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:shadow-lg transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-[18px]">refresh</span> Muat Data Siswa
+                    </button>
+                </div>
+
+            </div><!-- /Filter Bar -->
+
+            <!-- ===== PANEL: Rekap Harian ===== -->
+            <div id="panel-harian" class="panel active">
+                <div id="result-harian" class="text-center text-on-surface-variant py-16">
+                    <span class="material-symbols-outlined text-[56px] opacity-30">assignment</span>
+                    <p class="mt-2 text-sm">Pilih tanggal lalu klik <strong>Tampilkan</strong></p>
+                </div>
+            </div>
+
+            <!-- ===== PANEL: Rekap Bulanan ===== -->
+            <div id="panel-bulanan" class="panel">
+                <div id="result-bulanan" class="text-center text-on-surface-variant py-16">
+                    <span class="material-symbols-outlined text-[56px] opacity-30">calendar_month</span>
+                    <p class="mt-2 text-sm">Pilih bulan &amp; tahun lalu klik <strong>Tampilkan</strong></p>
+                </div>
+            </div>
+
+            <!-- ===== PANEL: Rekap Presensi Tahfidz ===== -->
+            <div id="panel-presensi" class="panel">
+                <div id="result-presensi" class="text-center text-on-surface-variant py-16">
+                    <span class="material-symbols-outlined text-[56px] opacity-30">fact_check</span>
+                    <p class="mt-2 text-sm">Pilih kelas &amp; periode presensi (Senin–Kamis), lalu klik <strong>Tampilkan Presensi</strong></p>
+                </div>
+            </div>
+
+            <!-- ===== PANEL: Data Siswa ===== -->
+            <div id="panel-siswa" class="panel">
+                <div id="result-siswa" class="text-center text-on-surface-variant py-16">
+                    <span class="material-symbols-outlined text-[56px] opacity-30">group</span>
+                    <p class="mt-2 text-sm">Klik <strong>Muat Data Siswa</strong> untuk menampilkan</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+    let currentAdminPresensiData = [];
+
+    // ================================================================
+    //  INIT
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await authGuard.protect('admin');
+        if (!user) return;
+
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+        document.getElementById('rekap-tanggal').value = todayStr;
+        document.getElementById('rekap-bulan').value   = String(now.getMonth() + 1);
+
+        if (document.getElementById('presensi-dari')) {
+            document.getElementById('presensi-dari').value = todayStr.substring(0,8) + '01';
+            document.getElementById('presensi-sampai').value = todayStr;
+        }
+
+        // Tahun dinamis: 3 tahun ke belakang s.d. 1 tahun ke depan
+        const y = now.getFullYear();
+        const sel = document.getElementById('rekap-tahun');
+        for (let i = y - 3; i <= y + 1; i++) {
+            const opt = document.createElement('option');
+            opt.value = i; opt.textContent = i;
+            if (i === y) opt.selected = true;
+            sel.appendChild(opt);
+        }
+
+        // Muat daftar kelas untuk filter
+        await loadKelasList();
+    });
+
+    // ================================================================
+    //  LOAD KELAS LIST (untuk dropdown filter)
+    // ================================================================
+    async function loadKelasList() {
+        try {
+            const res = await api.get('/api/admin/daftar-kelas.php?include_tpa=1');
+            const kelas = res.data || [];
+            ['rekap-kelas-harian', 'rekap-kelas-bulanan', 'rekap-kelas-presensi'].forEach(id => {
+                const sel = document.getElementById(id);
+                if (!sel) return;
+                sel.innerHTML = id === 'rekap-kelas-presensi' ? '' : '<option value="">Semua Kelas</option>';
+                kelas.forEach(k => {
+                    const opt = document.createElement('option');
+                    opt.value = k.id;
+                    opt.textContent = `${k.nama_kelas} (${k.jenjang})`;
+                    sel.appendChild(opt);
+                });
+            });
+        } catch(e) { /* abaikan jika gagal */ }
+    }
+
+    // ================================================================
+    //  TAB SWITCH
+    // ================================================================
+    function switchTab(tab) {
+        ['harian','bulanan','presensi','siswa'].forEach(t => {
+            const isActive = t === tab;
+            const btn = document.getElementById('tab-' + t);
+            if (btn) {
+                btn.classList.toggle('active', isActive);
+                btn.classList.toggle('text-white', isActive);
+                btn.classList.toggle('border-primary', isActive);
+                btn.classList.toggle('border-outline-variant', !isActive);
+                btn.classList.toggle('text-on-surface-variant', !isActive);
+            }
+            const panel = document.getElementById('panel-' + t);
+            if (panel) panel.classList.toggle('active', isActive);
+            
+            const f = document.getElementById('filter-' + t);
+            if (f) {
+                if (isActive) { f.classList.remove('hidden'); f.classList.add('flex'); }
+                else           { f.classList.add('hidden');   f.classList.remove('flex'); }
+            }
+        });
+        hidePrint();
+    }
+
+    function toggleKelasFilter() {
+        const mode = document.getElementById('rekap-mode').value;
+        document.getElementById('filter-kelas-harian').classList.toggle('hidden', mode !== 'detail');
+    }
+
+    function showPrint() {
+        const b = document.getElementById('btn-print');
+        b.classList.remove('hidden'); b.classList.add('flex');
+    }
+    function hidePrint() {
+        const b = document.getElementById('btn-print');
+        b.classList.add('hidden'); b.classList.remove('flex');
+    }
+
+    // ================================================================
+    //  HELPERS
+    // ================================================================
+    function statusBadge(status) {
+        const map = {
+            diterima:     ['badge-diterima', 'Diterima'],
+            menunggu:     ['badge-menunggu', 'Menunggu'],
+            perbaiki:     ['badge-perbaiki', 'Perbaiki'],
+            belum_kumpul: ['badge-belum',    'Belum Kumpul'],
+        };
+        const [cls, label] = map[status] || ['badge-belum', status];
+        return `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${cls}">${label}</span>`;
+    }
+
+    function progressBar(pct, color) {
+        return `<div class="flex items-center gap-2 justify-center">
+            <div class="w-16 bg-gray-200 rounded-full h-1.5">
+                <div style="width:${pct}%;background:${color}" class="h-1.5 rounded-full"></div>
+            </div>
+            <span class="font-bold text-xs" style="color:${color}">${pct}%</span>
+        </div>`;
+    }
+
+    function barColor(pct) {
+        return pct >= 80 ? '#16a34a' : pct >= 50 ? '#ca8a04' : '#dc2626';
+    }
+
+    function skeletonRows(cols, rows = 6) {
+        let html = '';
+        for (let i = 0; i < rows; i++) {
+            html += '<tr>' + Array(cols).fill(`<td><span class="skeleton h-4 w-full">&nbsp;</span></td>`).join('') + '</tr>';
+        }
+        return html;
+    }
+
+    // ================================================================
+    //  REKAP HARIAN
+    // ================================================================
+    async function loadRekapHarian() {
+        const tanggal  = document.getElementById('rekap-tanggal').value;
+        const mode     = document.getElementById('rekap-mode').value;
+        const kelasId  = document.getElementById('rekap-kelas-harian').value;
+        if (!tanggal) { api.toast('Pilih tanggal terlebih dahulu', 'error'); return; }
+
+        const container = document.getElementById('result-harian');
+
+        if (mode === 'ringkasan') {
+            container.innerHTML = `
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-outline-variant flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">today</span>
+                    <h3 class="font-bold text-primary">Rekap Harian — ${tanggal}</h3>
+                </div>
+                <div class="overflow-x-auto">
+                <table class="rekap-table">
+                    <thead><tr>
+                        <th>Kode</th><th>Nama Kelas</th><th>Jenjang</th>
+                        <th class="text-center">Total Siswa</th>
+                        <th class="text-center">Sudah Kumpul</th>
+                        <th class="text-center">Diterima</th>
+                        <th class="text-center">Menunggu</th>
+                        <th class="text-center">Perbaiki</th>
+                        <th class="text-center">Belum Kumpul</th>
+                        <th class="text-center">% Ketuntasan</th>
+                    </tr></thead>
+                    <tbody id="tbody-hr">${skeletonRows(10)}</tbody>
+                </table>
+                </div>
+            </div>`;
+
+            try {
+                const res  = await api.get(`/api/admin/rekap-harian.php?tanggal=${tanggal}&mode=ringkasan`);
+                const data = res.data.kelas;
+                const tbody = document.getElementById('tbody-hr');
+                if (!data?.length) {
+                    tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-on-surface-variant">Tidak ada data untuk tanggal ini</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = data.map(k => {
+                    const pct = parseInt(k.persentase);
+                    return `<tr>
+                        <td class="font-mono text-xs">${k.kode_kelas}</td>
+                        <td class="font-bold">${k.nama_kelas}</td>
+                        <td><span class="px-2 py-0.5 bg-surface-container rounded-full text-xs font-bold">${k.jenjang}</span></td>
+                        <td class="text-center font-bold">${k.total_siswa}</td>
+                        <td class="text-center">${k.sudah_kumpul}</td>
+                        <td class="text-center font-bold text-green-700">${k.diterima}</td>
+                        <td class="text-center text-yellow-600">${k.menunggu}</td>
+                        <td class="text-center text-red-600">${k.perbaiki}</td>
+                        <td class="text-center text-slate-400">${k.belum_kumpul}</td>
+                        <td>${progressBar(pct, barColor(pct))}</td>
+                    </tr>`;
+                }).join('');
+                showPrint();
+            } catch(e) { api.toast('Gagal memuat data: ' + (e.message||'Error'), 'error'); }
+
+        } else {
+            // Detail per siswa
+            let url = `/api/admin/rekap-harian.php?tanggal=${tanggal}&mode=detail`;
+            const kelasTeks = kelasId
+                ? document.getElementById('rekap-kelas-harian').selectedOptions[0]?.text || ''
+                : 'Semua Kelas';
+
+            container.innerHTML = `
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-outline-variant flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">person_search</span>
+                    <h3 class="font-bold text-primary">Detail Setoran Siswa — ${tanggal}</h3>
+                    <span class="ml-auto text-xs text-on-surface-variant">${kelasTeks}</span>
+                </div>
+                <div class="overflow-x-auto">
+                <table class="rekap-table">
+                    <thead><tr>
+                        <th>Kelas</th><th>NIS</th><th>Nama Siswa</th>
+                        <th>Surat</th><th class="text-center">Ayat</th><th>Status</th>
+                        <th>Catatan Guru</th><th class="text-center">Kirim</th><th class="text-center">Verifikasi</th>
+                    </tr></thead>
+                    <tbody id="tbody-hd">${skeletonRows(9)}</tbody>
+                </table>
+                </div>
+            </div>`;
+
+            try {
+                const res  = await api.get(url);
+                let data   = res.data.siswa;
+                // Filter kelas di sisi klien jika dipilih (API belum support filter kelas di detail)
+                if (kelasId) data = data.filter(s => String(s.kode_kelas) === String(document.getElementById('rekap-kelas-harian').selectedOptions[0]?.text?.split('(')[0]?.trim()) || true);
+
+                // Filter berdasarkan kelas_id yang dipilih menggunakan nama kelas dari option
+                if (kelasId) {
+                    const namaKelasFilter = document.getElementById('rekap-kelas-harian')
+                        .selectedOptions[0]?.text?.replace(/\s*\(.*\)/, '').trim();
+                    if (namaKelasFilter) data = data.filter(s => s.nama_kelas === namaKelasFilter);
+                }
+
+                const tbody = document.getElementById('tbody-hd');
+                if (!data?.length) {
+                    tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-on-surface-variant">Tidak ada data untuk tanggal ini</td></tr>`;
+                    return;
+                }
+                let lastKelas = '';
+                tbody.innerHTML = data.map(s => {
+                    let header = '';
+                    if (s.kode_kelas !== lastKelas) {
+                        lastKelas = s.kode_kelas;
+                        header = `<tr class="kelas-header"><td colspan="9">🏫 ${s.nama_kelas} (${s.jenjang})</td></tr>`;
+                    }
+                    const ayat = (s.ayat_dari !== '-' && s.ayat_sampai !== '-') ? `${s.ayat_dari}–${s.ayat_sampai}` : '-';
+                    return header + `<tr>
+                        <td class="text-xs text-on-surface-variant">${s.kode_kelas}</td>
+                        <td class="font-mono text-xs">${s.nis}</td>
+                        <td class="font-bold">${s.nama_lengkap}${s.nama_panggilan ? `<br><span class="text-xs text-on-surface-variant font-normal">(${s.nama_panggilan})</span>` : ''}</td>
+                        <td class="text-sm">${s.nama_surat}</td>
+                        <td class="text-center text-xs">${ayat}</td>
+                        <td>${statusBadge(s.status)}</td>
+                        <td class="text-xs text-on-surface-variant max-w-[160px]">${s.catatan_guru !== '-' ? s.catatan_guru : '<span class="opacity-30">—</span>'}</td>
+                        <td class="text-center text-xs font-mono">${s.waktu_kirim}</td>
+                        <td class="text-center text-xs font-mono">${s.waktu_verifikasi}</td>
+                    </tr>`;
+                }).join('');
+                showPrint();
+            } catch(e) { api.toast('Gagal memuat data: ' + (e.message||'Error'), 'error'); }
+        }
+    }
+
+    // ================================================================
+    //  REKAP BULANAN
+    // ================================================================
+    async function loadRekapBulanan() {
+        const bulan   = document.getElementById('rekap-bulan').value;
+        const tahun   = document.getElementById('rekap-tahun').value;
+        const kelasId = document.getElementById('rekap-kelas-bulanan').value;
+        const namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][+bulan];
+        const kelasTeks = kelasId
+            ? document.getElementById('rekap-kelas-bulanan').selectedOptions[0]?.text || ''
+            : 'Semua Kelas';
+
+        const container = document.getElementById('result-bulanan');
+        container.innerHTML = `
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-outline-variant flex items-center gap-2">
+                <span class="material-symbols-outlined text-tertiary">calendar_month</span>
+                <h3 class="font-bold text-tertiary">Rekap Bulanan — ${namaBulan} ${tahun}</h3>
+                <span class="ml-auto text-xs text-on-surface-variant">${kelasTeks}</span>
+            </div>
+            <div class="overflow-x-auto">
+            <table class="rekap-table">
+                <thead><tr>
+                    <th>Kelas</th><th>NIS</th><th>Nama Siswa</th>
+                    <th class="text-center">Total Setoran</th>
+                    <th class="text-center">Diterima</th>
+                    <th class="text-center">Menunggu</th>
+                    <th class="text-center">Perbaiki</th>
+                    <th class="text-center">% Ketuntasan</th>
+                </tr></thead>
+                <tbody id="tbody-bul">${skeletonRows(8)}</tbody>
+            </table>
+            </div>
+        </div>`;
+
+        try {
+            let url = `/api/admin/rekap-bulanan.php?bulan=${bulan}&tahun=${tahun}`;
+            if (kelasId) url += `&kelas_id=${kelasId}`;
+
+            const res   = await api.get(url);
+            const kelas = res.data.kelas;
+            const tbody = document.getElementById('tbody-bul');
+
+            if (!kelas?.length) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-on-surface-variant">Tidak ada data untuk periode ini</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            kelas.forEach(k => {
+                const kPct = k.persen_ketuntasan ?? 0;
+                html += `<tr class="kelas-header">
+                    <td colspan="8">
+                        🏫 ${k.nama_kelas}
+                        <span class="ml-2 text-xs font-normal opacity-70">${k.jenjang}</span>
+                        <span class="ml-3 text-xs">Siswa: ${k.total_siswa}</span>
+                        <span class="ml-2 text-xs">Total Setoran: ${k.total_setoran}</span>
+                        <span class="ml-2 text-xs">Diterima: ${k.total_diterima}</span>
+                        <span class="ml-2 font-bold" style="color:${barColor(kPct)}">Ketuntasan Kelas: ${kPct}%</span>
+                    </td>
+                </tr>`;
+                (k.siswa || []).forEach(s => {
+                    const pct = s.persen_ketuntasan ?? 0;
+                    html += `<tr>
+                        <td class="text-xs text-on-surface-variant">${k.kode_kelas}</td>
+                        <td class="font-mono text-xs">${s.nis}</td>
+                        <td class="font-bold">${s.nama_lengkap}${s.nama_panggilan ? `<br><span class="text-xs font-normal text-on-surface-variant">(${s.nama_panggilan})</span>` : ''}</td>
+                        <td class="text-center">${s.total_setoran}</td>
+                        <td class="text-center font-bold text-green-700">${s.diterima}</td>
+                        <td class="text-center text-yellow-600">${s.menunggu}</td>
+                        <td class="text-center text-red-600">${s.perbaiki}</td>
+                        <td>${progressBar(pct, barColor(pct))}</td>
+                    </tr>`;
+                });
+            });
+            tbody.innerHTML = html;
+            showPrint();
+        } catch(e) { api.toast('Gagal memuat data: ' + (e.message||'Error'), 'error'); }
+    }
+
+    // ================================================================
+    //  DATA SISWA
+    // ================================================================
+    async function loadDataSiswa() {
+        const container = document.getElementById('result-siswa');
+        container.innerHTML = `
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-outline-variant flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary">group</span>
+                <h3 class="font-bold text-secondary">Daftar Seluruh Siswa Aktif</h3>
+            </div>
+            <div class="overflow-x-auto">
+            <table class="rekap-table">
+                <thead><tr>
+                    <th>#</th><th>NIS</th><th>Nama Lengkap</th><th>Nama Panggilan</th>
+                    <th>Jenis Kelamin</th><th>Kelas</th>
+                </tr></thead>
+                <tbody id="tbody-siswa">${skeletonRows(6, 8)}</tbody>
+            </table>
+            </div>
+        </div>`;
+
+        try {
+            const res   = await api.get('/api/admin/daftar-siswa.php?per_page=10000');
+            const data  = res.data.data;
+            const tbody = document.getElementById('tbody-siswa');
+            if (!data?.length) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-on-surface-variant">Tidak ada data siswa</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.map((s, i) => `<tr>
+                <td class="text-on-surface-variant text-xs">${i+1}</td>
+                <td class="font-mono text-xs">${s.nis}</td>
+                <td class="font-bold">${s.nama_lengkap}</td>
+                <td>${s.nama_panggilan || '-'}</td>
+                <td>${s.jenis_kelamin === 'L' ? '👦 Laki-laki' : '👧 Perempuan'}</td>
+                <td><span class="px-2 py-0.5 bg-surface-container rounded-full text-xs font-bold">${s.nama_kelas}</span></td>
+            </tr>`).join('');
+            showPrint();
+        } catch(e) { api.toast('Gagal memuat data siswa: ' + (e.message||'Error'), 'error'); }
+    }
+
+    // ================================================================
+    //  REKAP PRESENSI TAHFIDZ (ADMIN)
+    // ================================================================
+    async function loadRekapPresensiAdmin() {
+        const kelasId = document.getElementById('rekap-kelas-presensi')?.value;
+        const dari = document.getElementById('presensi-dari')?.value;
+        const sampai = document.getElementById('presensi-sampai')?.value;
+        const container = document.getElementById('result-presensi');
+
+        if (!kelasId) {
+            api.toast('Pilih kelas terlebih dahulu.', 'error');
+            return;
+        }
+
+        container.innerHTML = `
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-outline-variant flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">fact_check</span>
+                    <h3 class="font-bold text-primary">Rekap Presensi Tahfidz (Senin–Kamis)</h3>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+            <table class="rekap-table">
+                <thead><tr>
+                    <th>#</th><th>NIS</th><th>Nama Lengkap</th><th>Panggilan</th>
+                    <th class="text-center text-emerald-700">Hadir (H)</th>
+                    <th class="text-center text-amber-700">Izin (I)</th>
+                    <th class="text-center text-blue-700">Sakit (S)</th>
+                    <th class="text-center text-red-700">Alpha (A)</th>
+                    <th class="text-center">% Kehadiran</th>
+                </tr></thead>
+                <tbody id="tbody-presensi-admin">${skeletonRows(9, 6)}</tbody>
+            </table>
+            </div>
+        </div>`;
+
+        try {
+            const res = await api.get(`/api/guru/presensi-rekap.php?kelas_id=${kelasId}&dari=${dari}&sampai=${sampai}`);
+            const data = res.data;
+            const rekap = data.rekap_siswa || [];
+            currentAdminPresensiData = rekap;
+
+            const tbody = document.getElementById('tbody-presensi-admin');
+            if (!rekap || rekap.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-on-surface-variant">Belum ada data presensi pada periode ini</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = rekap.map((r, i) => {
+                const pct = r.persentase_hadir || 0;
+                return `<tr>
+                    <td class="text-on-surface-variant text-xs">${i+1}</td>
+                    <td class="font-mono text-xs">${r.nis || '-'}</td>
+                    <td class="font-bold">${r.nama_lengkap}</td>
+                    <td>${r.nama_panggilan || '-'}</td>
+                    <td class="text-center font-bold text-emerald-700">${r.hadir || 0}</td>
+                    <td class="text-center font-bold text-amber-700">${r.izin || 0}</td>
+                    <td class="text-center font-bold text-blue-700">${r.sakit || 0}</td>
+                    <td class="text-center font-bold text-red-700">${r.alpha || 0}</td>
+                    <td>${progressBar(pct, barColor(pct))}</td>
+                </tr>`;
+            }).join('');
+            showPrint();
+        } catch(e) {
+            container.innerHTML = `<p class="text-center text-error text-sm py-8">Gagal memuat presensi: ${e.message}</p>`;
+        }
+    }
+
+    function downloadPresensiAdminCSV() {
+        if (!currentAdminPresensiData || currentAdminPresensiData.length === 0) {
+            api.toast('Belum ada data presensi yang dimuat. Klik "Tampilkan Presensi" dahulu.', 'error');
+            return;
+        }
+        const dari = document.getElementById('presensi-dari')?.value || '';
+        const sampai = document.getElementById('presensi-sampai')?.value || '';
+        const sel = document.getElementById('rekap-kelas-presensi');
+        const namaKelas = sel ? sel.options[sel.selectedIndex]?.text || 'Kelas' : 'Kelas';
+
+        const headers = ['No', 'NIS', 'Nama Lengkap', 'Nama Panggilan', 'Hadir (H)', 'Izin (I)', 'Sakit (S)', 'Alpha (A)', 'Total Sesi', 'Persentase Kehadiran (%)'];
+        const rows = currentAdminPresensiData.map((r, idx) => [
+            idx + 1,
+            r.nis || '-',
+            r.nama_lengkap || '-',
+            r.nama_panggilan || '-',
+            r.hadir || 0,
+            r.izin || 0,
+            r.sakit || 0,
+            r.alpha || 0,
+            r.total_tercatat || 0,
+            (r.persentase_hadir || 0) + '%'
+        ]);
+
+        let csvContent = headers.join(',') + '\n' + rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')).join('\n');
+
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        const cleanClassName = namaKelas.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_');
+        link.download = `Rekap_Presensi_${cleanClassName}_${dari}_sd_${sampai}.csv`;
+        link.click();
+        api.toast('✅ Rekap presensi berhasil diunduh dalam format CSV/Excel!', 'success');
+    }
+    </script>
+</body>
+</html>

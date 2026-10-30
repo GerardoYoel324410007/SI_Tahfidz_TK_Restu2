@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Raport Progres Ananda - Tahfidz Parent Portal</title>
+    <meta name="description" content="Laporan progres hafalan Al-Quran anak di KB-BA-TPA Restu Z Excellent School.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": { "on-surface": "#191c1c","background": "#f8faf9","on-primary-fixed": "#00210e","on-primary-container": "#8ad2a0","surface-bright": "#f8faf9","surface": "#f8faf9","surface-variant": "#e1e3e2","secondary-container": "#fe8a29","surface-container-lowest": "#ffffff","on-primary": "#ffffff","primary": "#004323","on-tertiary-container": "#aac1ff","on-error": "#ffffff","on-secondary": "#ffffff","outline-variant": "#bfc9bf","secondary": "#964900","primary-fixed": "#a9f3be","on-tertiary": "#ffffff","on-primary-fixed-variant": "#00522c","error-container": "#ffdad6","tertiary": "#003580","tertiary-fixed": "#d9e2ff","on-secondary-fixed": "#311300","primary-fixed-dim": "#8dd6a3","on-secondary-container": "#642f00","outline": "#707a70","on-surface-variant": "#404941","on-background": "#191c1c","inverse-primary": "#8dd6a3","inverse-surface": "#2e3131","surface-container-highest": "#e1e3e2","surface-container-low": "#f2f4f3","surface-container": "#eceeed","surface-container-high": "#e6e9e8","on-error-container": "#93000a","primary-container": "#0d5c34","tertiary-fixed-dim": "#b0c6ff","on-tertiary-fixed-variant": "#00429c","tertiary-container": "#004aae","surface-tint": "#226b41","surface-dim": "#d8dada","secondary-fixed-dim": "#ffb786","on-tertiary-fixed": "#001945","inverse-on-surface": "#eff1f0","secondary-fixed": "#ffdcc6","on-secondary-fixed-variant": "#723600","error": "#ba1a1a" },
+                "borderRadius": {"DEFAULT": "1rem","lg": "2rem","xl": "3rem","full": "9999px"},
+                "spacing": {"container-padding-sm": "16px","margin-mobile": "16px","base": "8px","margin-desktop": "48px","container-padding-md": "24px","gutter": "20px"},
+                "fontFamily": {"headline-lg-mobile": ["Plus Jakarta Sans"],"headline-lg": ["Plus Jakarta Sans"],"body-md": ["Plus Jakarta Sans"],"label-md": ["Plus Jakarta Sans"],"headline-md": ["Plus Jakarta Sans"],"headline-sm": ["Plus Jakarta Sans"],"body-lg": ["Plus Jakarta Sans"]},
+                "fontSize": { "headline-lg-mobile": ["26px",{"lineHeight":"34px","fontWeight":"700"}],"headline-lg": ["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-md": ["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-md": ["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-lg": ["18px",{"lineHeight":"26px","fontWeight":"500"}] }
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: max(884px, 100dvh); background-color: #f8faf9; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .donut-chart { background: conic-gradient(#003580 0% 50%, #e1e3e2 50% 100%); mask-image: radial-gradient(transparent 60%, black 61%); -webkit-mask-image: radial-gradient(transparent 60%, black 61%); }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="bg-background font-body-md text-on-background min-h-screen pb-32">
+    <!-- Top App Bar -->
+    <header class="flex justify-between items-center px-margin-mobile py-3 sticky top-0 z-50 w-full bg-primary rounded-b-lg shadow-[0px_20px_40px_rgba(0,67,35,0.15)]">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-on-primary/20 bg-white flex items-center justify-center">
+                <img alt="Logo Restu Z" class="w-full h-full object-contain p-0.5" src="../../LOGO Restu 2 Excellent.png">
+            </div>
+            <h1 class="font-headline-sm text-headline-sm-mobile md:text-headline-sm font-bold text-on-primary">Tahfidz Parent Portal</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="authGuard.logout()" class="bg-[#ba1a1a] text-white px-4 py-1.5 rounded-full font-bold text-xs active:scale-95 transition-all flex items-center gap-1.5 shadow-md hover:bg-[#ba1a1a]/90" title="Logout">
+                <span class="material-symbols-outlined text-sm">logout</span>
+                <span>Keluar</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="px-margin-mobile md:px-margin-desktop py-8 max-w-7xl mx-auto space-y-8">
+        <!-- Hero: Progress Card -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Progress -->
+            <div class="lg:col-span-2 bg-surface-container-lowest rounded-lg p-8 shadow-[0px_20px_40px_rgba(0,67,35,0.08)] flex flex-col md:flex-row items-center gap-10">
+                <!-- Donut Chart -->
+                <div class="relative w-48 h-48 flex items-center justify-center flex-shrink-0">
+                    <canvas id="raport-chart" width="192" height="192"></canvas>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span id="chart-persen" class="font-headline-lg text-headline-lg text-tertiary">0%</span>
+                        <span class="font-label-md text-label-md text-on-surface-variant">Selesai</span>
+                    </div>
+                </div>
+                <!-- Stats -->
+                <div class="flex-1 space-y-6">
+                    <div>
+                        <h2 class="font-headline-md text-headline-md text-primary mb-2">Progres Hafalan</h2>
+                        <p class="font-body-md text-body-md text-on-surface-variant">Alhamdulillah, progres ananda bulan ini menunjukkan konsistensi yang baik.</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-surface-container rounded-lg p-4">
+                            <span class="font-label-md text-label-md text-on-surface-variant block">Total Setoran</span>
+                            <span class="font-headline-sm text-headline-sm text-primary" id="stat-total-setoran">-</span>
+                        </div>
+                        <div class="bg-secondary-container/10 rounded-lg p-4">
+                            <span class="font-label-md text-label-md text-secondary block">Diterima</span>
+                            <span class="font-headline-sm text-headline-sm text-secondary" id="stat-diterima">-</span>
+                        </div>
+                    </div>
+                    <!-- Distribusi Nilai -->
+                    <div class="pt-4 border-t border-outline-variant/30 w-full space-y-3">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <span class="font-label-md text-xs text-on-surface-variant font-bold uppercase tracking-wider">Distribusi Capaian Rubrik</span>
+                            <select id="filter-tugas-rubrik" onchange="window.updateRubrikFilter && window.updateRubrikFilter()" class="py-1 px-2.5 bg-surface-bright border border-outline-variant/60 rounded-lg text-xs font-bold text-primary focus:ring-1 focus:ring-primary shadow-xs">
+                                <option value="all">Semua Tugas (Total)</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 text-center" id="distribusi-nilai-container">
+                            <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-2">
+                                <span class="text-[9px] text-emerald-700 font-extrabold block">BSB ⭐⭐⭐⭐</span>
+                                <span class="text-base font-black text-emerald-800 block mt-0.5" id="count-BSB">0</span>
+                            </div>
+                            <div class="bg-blue-50 border border-blue-100 rounded-xl p-2">
+                                <span class="text-[9px] text-blue-700 font-extrabold block">BSH ⭐⭐⭐</span>
+                                <span class="text-base font-black text-blue-800 block mt-0.5" id="count-BSH">0</span>
+                            </div>
+                            <div class="bg-amber-50 border border-amber-100 rounded-xl p-2">
+                                <span class="text-[9px] text-amber-700 font-extrabold block">MB ⭐⭐</span>
+                                <span class="text-base font-black text-amber-800 block mt-0.5" id="count-MB">0</span>
+                            </div>
+                            <div class="bg-red-50 border border-red-100 rounded-xl p-2">
+                                <span class="text-[9px] text-red-700 font-extrabold block">BB ⭐</span>
+                                <span class="text-base font-black text-red-800 block mt-0.5" id="count-BB">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Motivation Side -->
+            <div class="bg-primary rounded-lg p-8 text-on-primary flex flex-col justify-between shadow-lg relative overflow-hidden">
+                <div class="relative z-10">
+                    <h3 class="font-headline-sm text-headline-sm mb-4">Capaian Terbaik</h3>
+                    <p class="font-body-md text-body-md opacity-90 italic">"Sebaik-baik kalian adalah yang mempelajari Al-Qur'an dan mengajarkannya."</p>
+                </div>
+                <div class="relative z-10 mt-8">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="material-symbols-outlined text-secondary-container">workspace_premium</span>
+                        <span class="font-label-md text-label-md">Capaian Bulan Ini:</span>
+                    </div>
+                    <span id="predikat-badge" class="px-4 py-2 bg-on-primary text-primary rounded-full font-bold text-label-md inline-block">Menghitung...</span>
+                </div>
+                <div class="absolute -right-10 -bottom-10 opacity-10">
+                    <span class="material-symbols-outlined text-[200px]">menu_book</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Riwayat Hafalan (Lunas)</h3>
+                <a href="histori.html" class="text-tertiary font-label-md hover:underline">Lihat Semua</a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="riwayat-grid">
+                <!-- Loading skeleton -->
+                <div class="animate-pulse bg-surface-container rounded-lg h-20"></div>
+                <div class="animate-pulse bg-surface-container rounded-lg h-20"></div>
+                <div class="animate-pulse bg-surface-container rounded-lg h-20"></div>
+                <div class="animate-pulse bg-surface-container rounded-lg h-20"></div>
+            </div>
+        </section>
+
+        <!-- Catatan Section -->
+        <section class="bg-surface-container-high rounded-lg p-6">
+            <div class="flex items-start gap-4">
+                <span class="material-symbols-outlined text-tertiary text-3xl">info</span>
+                <div>
+                    <h4 class="font-label-md text-label-md text-tertiary mb-1">Catatan Ustadz</h4>
+                    <p id="raport-catatan" class="font-body-md text-body-md text-on-surface-variant italic">-</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-4 pt-2 bg-surface shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] rounded-t-lg">
+        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high px-5 py-2 rounded-2xl active:scale-90 transition-all duration-200" href="beranda.html">
+            <span class="material-symbols-outlined">home</span>
+            <span class="font-label-md text-xs mt-1">Home</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high px-5 py-2 rounded-2xl active:scale-90 transition-all duration-200 relative" href="setoran.html">
+            <span class="material-symbols-outlined">cloud_upload</span>
+            <span class="font-label-md text-xs mt-1">Setor</span>
+            <span id="setor-notif-dot" class="absolute top-2 right-6 w-2.5 h-2.5 bg-red-600 rounded-full hidden"></span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high px-5 py-2 rounded-2xl active:scale-90 transition-all duration-200" href="histori.html">
+            <span class="material-symbols-outlined">history</span>
+            <span class="font-label-md text-xs mt-1">Histori</span>
+        </a>
+        <a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-2xl px-5 py-2 active:scale-90 transition-all duration-200" href="raport.html">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">insights</span>
+            <span class="font-label-md text-xs mt-1">Progress</span>
+        </a>
+        <button onclick="authGuard.logout()" class="flex flex-col items-center justify-center text-[#ba1a1a] hover:bg-red-50 px-5 py-2 rounded-2xl active:scale-90 transition-all duration-200">
+            <span class="material-symbols-outlined">logout</span>
+            <span class="font-label-md text-xs mt-1">Keluar</span>
+        </button>
+    </nav>
+
+    <script>
+    let raportChart = null;
+
+    function renderDonutChart(diterima, menunggu, perbaiki, belum) {
+        const ctx = document.getElementById('raport-chart').getContext('2d');
+        
+        if (raportChart) {
+            raportChart.destroy();
+        }
+        
+        raportChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Diterima', 'Menunggu', 'Perbaiki', 'Belum Kumpul'],
+                datasets: [{
+                    data: [diterima, menunggu, perbaiki, belum],
+                    backgroundColor: ['#004323', '#003580', '#964900', '#e1e3e2'],
+                    borderWidth: 0,
+                    cutout: '65%'
+                }]
+            },
+            options: {
+                responsive: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                }
+            }
+        });
+        
+        // Update persentase
+        const total = diterima + menunggu + perbaiki + belum;
+        const pct = total > 0 ? Math.round((diterima / total) * 100) : 0;
+        document.getElementById('chart-persen').textContent = pct + '%';
+    }
+
+    async function checkPendingTask() {
+        try {
+            const res = await api.get('/api/wali/tugas-hari-ini.php');
+            const d = res.data;
+            if (d.tugas && !d.setoran && !d.is_locked) {
+                const dot = document.getElementById('setor-notif-dot');
+                if (dot) dot.classList.remove('hidden');
+            }
+        } catch (e) {
+            console.error('Gagal memeriksa tugas baru:', e);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        checkPendingTask();
+        const now = new Date();
+        const bulan = now.getMonth() + 1;
+        const tahun = now.getFullYear();
+
+        try {
+            const res = await api.get(`/api/wali/raport.php?bulan=${bulan}&tahun=${tahun}`);
+            const d = res.data;
+            const r = d.ringkasan;
+
+            // Render donut chart dengan Chart.js
+            const belum = r.total_setoran - r.diterima - r.menunggu - r.perbaiki;
+            renderDonutChart(r.diterima, r.menunggu, r.perbaiki, Math.max(0, belum));
+
+            // Update stat cards
+            const totalEl = document.getElementById('stat-total-setoran');
+            const diterimaEl = document.getElementById('stat-diterima');
+            if (totalEl) totalEl.textContent = r.total_setoran + ' Setoran';
+            if (diterimaEl) diterimaEl.textContent = r.diterima + ' Diterima';
+
+            // Hitung predikat dinamis berdasarkan persen diterima
+            const predikatBadge = document.getElementById('predikat-badge');
+            if (predikatBadge && r.total_setoran > 0) {
+                const pctDiterima = Math.round((r.diterima / r.total_setoran) * 100);
+                let predikat = 'Perlu Perhatian';
+                if (pctDiterima >= 90) predikat = 'Mumtaz ⭐ (Istimewa)';
+                else if (pctDiterima >= 75) predikat = 'Jayyid Jiddan (Sangat Baik)';
+                else if (pctDiterima >= 60) predikat = 'Jayyid (Baik)';
+                else if (pctDiterima >= 40) predikat = 'Maqbul (Cukup)';
+                predikatBadge.textContent = predikat;
+            } else if (predikatBadge) {
+                predikatBadge.textContent = 'Belum Ada Data';
+            }
+
+            // Helper parse nilai ke kategori BSB / BSH / MB / BB
+            function parseNilaiCategory(val) {
+                if (val === null || val === undefined) return null;
+                const str = String(val).trim().toUpperCase();
+                if (str === '4' || str === 'BSB' || str === 'MUMTAZ') return 'BSB';
+                if (str === '3' || str === 'BSH' || str === 'JAYYID JIDDAN') return 'BSH';
+                if (str === '2' || str === 'MB' || str === 'JAYYID') return 'MB';
+                if (str === '1' || str === 'BB' || str === 'MAQBUL' || str === 'PERLU PERHATIAN') return 'BB';
+                
+                const num = parseFloat(str);
+                if (!isNaN(num)) {
+                    if (num >= 90) return 'BSB';
+                    if (num >= 75) return 'BSH';
+                    if (num >= 60) return 'MB';
+                    if (num > 0) return 'BB';
+                }
+                return null;
+            }
+
+            // Global riwayat data for per-task filtering
+            window.globalRiwayatData = d.riwayat || [];
+
+            // Populate filter select per-tugas
+            const filterSelect = document.getElementById('filter-tugas-rubrik');
+            if (filterSelect && d.riwayat && d.riwayat.length > 0) {
+                filterSelect.innerHTML = '<option value="all">Semua Tugas (Total)</option>' +
+                    d.riwayat.map(item => `<option value="${item.setoran_id}">${item.nama_surat} (Ayat ${item.ayat_dari}-${item.ayat_sampai})</option>`).join('');
+            }
+
+            // Function update rubrik filter
+            window.updateRubrikFilter = function() {
+                const selectedVal = document.getElementById('filter-tugas-rubrik')?.value || 'all';
+                const counts = { BB: 0, MB: 0, BSH: 0, BSB: 0 };
+
+                (window.globalRiwayatData || []).forEach(item => {
+                    if (selectedVal === 'all' || String(item.setoran_id) === String(selectedVal)) {
+                        let countedInDetail = false;
+                        if (item.detail_koreksi && item.detail_koreksi.length > 0) {
+                            item.detail_koreksi.forEach(crit => {
+                                const cat = parseNilaiCategory(crit.nilai);
+                                if (cat && counts[cat] !== undefined) {
+                                    counts[cat]++;
+                                    countedInDetail = true;
+                                }
+                            });
+                        }
+                        // Fallback jika detail_koreksi kosong tapi ada nilai_label/nilai_poin di setoran
+                        if (!countedInDetail) {
+                            const cat = parseNilaiCategory(item.nilai_label || item.nilai_poin);
+                            if (cat && counts[cat] !== undefined) {
+                                counts[cat]++;
+                            }
+                        }
+                    }
+                });
+
+                if (document.getElementById('count-BB')) document.getElementById('count-BB').textContent = counts.BB;
+                if (document.getElementById('count-MB')) document.getElementById('count-MB').textContent = counts.MB;
+                if (document.getElementById('count-BSH')) document.getElementById('count-BSH').textContent = counts.BSH;
+                if (document.getElementById('count-BSB')) document.getElementById('count-BSB').textContent = counts.BSB;
+            };
+
+            window.updateRubrikFilter();
+
+            // Render riwayat per-tugas
+            const historySection = document.getElementById('riwayat-grid');
+            if (historySection && d.riwayat && d.riwayat.length > 0) {
+                historySection.innerHTML = d.riwayat.map(item => {
+                    const statusClass = item.status === 'diterima' ? 'bg-primary/10 text-primary' : item.status === 'perbaiki' ? 'bg-error/10 text-error' : 'bg-tertiary/10 text-tertiary';
+                    const statusLabel = item.status === 'diterima' ? 'Lulus' : item.status === 'perbaiki' ? 'Perbaiki' : 'Menunggu';
+                    
+                    // Hitung rubrik per tugas ini
+                    const taskCounts = { BB: 0, MB: 0, BSH: 0, BSB: 0 };
+                    let criteriaHTML = '';
+                    let hasDetailCount = false;
+
+                    if (item.detail_koreksi && item.detail_koreksi.length > 0) {
+                        criteriaHTML = `
+                            <div class="mt-2 flex flex-wrap gap-1">
+                                ${item.detail_koreksi.map(crit => {
+                                    const cat = parseNilaiCategory(crit.nilai);
+                                    if (cat && taskCounts[cat] !== undefined) {
+                                        taskCounts[cat]++;
+                                        hasDetailCount = true;
+                                    }
+
+                                    let stars = '';
+                                    let colorBadge = 'bg-gray-50 text-gray-700 border-gray-200';
+                                    if (cat === 'BSB') { stars = '⭐⭐⭐⭐'; colorBadge = 'bg-emerald-50 text-emerald-700 border-emerald-200'; }
+                                    else if (cat === 'BSH') { stars = '⭐⭐⭐'; colorBadge = 'bg-blue-50 text-blue-700 border-blue-200'; }
+                                    else if (cat === 'MB') { stars = '⭐⭐'; colorBadge = 'bg-amber-50 text-amber-700 border-amber-200'; }
+                                    else if (cat === 'BB') { stars = '⭐'; colorBadge = 'bg-red-50 text-red-700 border-red-200'; }
+
+                                    const valDisplay = isNaN(crit.nilai) ? crit.nilai : `${crit.nilai}/100`;
+
+                                    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold ${colorBadge}">
+                                        ${crit.kriteria}: ${valDisplay} ${stars}
+                                    </span>`;
+                                }).join('')}
+                            </div>`;
+                    }
+
+                    // Fallback count jika tidak ada detail_koreksi
+                    if (!hasDetailCount) {
+                        const setoranCat = parseNilaiCategory(item.nilai_label || item.nilai_poin);
+                        if (setoranCat && taskCounts[setoranCat] !== undefined) {
+                            taskCounts[setoranCat]++;
+                        }
+                    }
+
+                    // Score label pill
+                    let nilaiPillHTML = '';
+                    const mainCat = parseNilaiCategory(item.nilai_label || item.nilai_poin);
+                    if (mainCat) {
+                        let colorBadge = 'bg-emerald-100 text-emerald-800';
+                        let stars = '⭐⭐⭐⭐';
+                        if (mainCat === 'BSH') { colorBadge = 'bg-blue-100 text-blue-800'; stars = '⭐⭐⭐'; }
+                        else if (mainCat === 'MB') { colorBadge = 'bg-amber-100 text-amber-800'; stars = '⭐⭐'; }
+                        else if (mainCat === 'BB') { colorBadge = 'bg-red-100 text-red-800'; stars = '⭐'; }
+                        nilaiPillHTML = `<span class="px-2.5 py-1 rounded-full text-xs font-black ${colorBadge} flex items-center gap-1">Nilai: ${mainCat} ${stars}</span>`;
+                    }
+
+                    const babText = item.bab ? ` (${item.bab})` : '';
+                    return `
+                    <a href="koreksi-detail.html?setoran_id=${item.setoran_id}" class="bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between gap-3 group">
+                        <div class="flex items-center justify-between w-full">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-primary-fixed rounded-lg flex items-center justify-center text-on-primary-fixed-variant font-bold text-xs">${item.nama_surat.substring(0,3)}</div>
+                                <div>
+                                    <p class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors text-sm">${item.nama_surat}${babText}</p>
+                                    <p class="font-label-md text-label-md text-on-surface-variant text-xs">Ayat ${item.ayat_dari}-${item.ayat_sampai}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                ${nilaiPillHTML}
+                                <span class="px-2.5 py-0.5 ${statusClass} rounded-full text-[10px] font-bold">${statusLabel}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Mini Capaian Rubrik Per Tugas Ini -->
+                        <div class="bg-surface-bright/70 border border-outline-variant/30 rounded-lg p-2 flex items-center justify-between text-[10px]">
+                            <span class="font-bold text-on-surface-variant">Distribusi Rubrik Tugas:</span>
+                            <div class="flex gap-1.5 font-extrabold">
+                                <span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded">BSB: ${taskCounts.BSB}</span>
+                                <span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded">BSH: ${taskCounts.BSH}</span>
+                                <span class="px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded">MB: ${taskCounts.MB}</span>
+                                <span class="px-1.5 py-0.5 bg-red-100 text-red-800 rounded">BB: ${taskCounts.BB}</span>
+                            </div>
+                        </div>
+
+                        ${criteriaHTML}
+                    </a>`;
+                }).join('');
+            } else if (historySection) {
+                historySection.innerHTML = '<p class="col-span-full text-center text-on-surface-variant py-8">Belum ada riwayat setoran bulan ini.</p>';
+            }
+
+            // Catatan Ustadz Terbaru
+            const catatanEl = document.getElementById('raport-catatan');
+            const latestWithCatatan = d.riwayat ? d.riwayat.find(r => r.catatan_guru) : null;
+            if (latestWithCatatan) {
+                catatanEl.textContent = `“ ${latestWithCatatan.catatan_guru} ”`;
+            } else {
+                catatanEl.textContent = 'Belum ada catatan dari guru bulan ini.';
+            }
+        } catch (err) {
+            console.error('Gagal memuat raport:', err);
+        }
+    });
+    </script>
+</body>
+</html>

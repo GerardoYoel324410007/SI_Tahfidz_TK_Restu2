@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presensi Tahfidz - Sistem Tahfidz BA</title>
+    <meta name="description" content="Input presensi harian kelas tahfidz Senin-Kamis">
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": { "primary": "#004323","secondary": "#964900","tertiary": "#003580","secondary-container": "#fe8a29","surface-bright": "#f8faf9","surface-container-highest": "#e1e3e2","surface-container-high": "#e6e9e8","surface-container-low": "#f2f4f3","surface-container": "#eceeed","surface-container-lowest": "#ffffff","on-surface": "#191c1c","on-surface-variant": "#404941","outline-variant": "#bfc9bf","primary-container": "#0d5c34","error": "#ba1a1a","error-container": "#ffdad6" },
+                "fontFamily": { "sans": ["Plus Jakarta Sans", "sans-serif"] }
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+        /* Status pills */
+        .status-hadir  { background: #d1fae5; color: #065f46; }
+        .status-izin   { background: #fef3c7; color: #92400e; }
+        .status-sakit  { background: #dbeafe; color: #1e40af; }
+        .status-alpha  { background: #fee2e2; color: #991b1b; }
+
+        /* Toggle buttons */
+        .toggle-btn { transition: all 0.15s ease; }
+        .toggle-btn.active-hadir  { background: #059669; color: white; box-shadow: 0 0 0 3px rgba(5,150,105,0.25); }
+        .toggle-btn.active-izin   { background: #d97706; color: white; box-shadow: 0 0 0 3px rgba(217,119,6,0.25); }
+        .toggle-btn.active-sakit  { background: #2563eb; color: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.25); }
+        .toggle-btn.active-alpha  { background: #dc2626; color: white; box-shadow: 0 0 0 3px rgba(220,38,38,0.25); }
+
+        /* Progress bar */
+        .progress-bar { background: linear-gradient(90deg, #004323, #059669); }
+
+        /* Animasi row masuk */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .row-animate { animation: slideIn 0.2s ease forwards; }
+
+        /* Badge kelas intensif */
+        .badge-intensif     { background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; }
+        .badge-koordinator  { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; }
+        .badge-reguler      { background: #e8f5e9; color: #004323; }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="bg-surface-bright text-on-surface antialiased">
+
+    <!-- Sidebar (diisi dari JS shared) -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-primary shadow-[40px_0_60px_-15px_rgba(0,67,35,0.15)] flex-col py-8 z-50 transform transition-transform duration-300 -translate-x-full md:translate-x-0 hidden md:flex overflow-y-auto"></aside>
+
+    <!-- Top Header -->
+    <header class="h-20 w-full md:w-[calc(100%-18rem)] sticky top-0 z-40 bg-surface-bright/80 backdrop-blur-md shadow-sm flex justify-between items-center px-4 md:px-12 ml-0 md:ml-72">
+        <div class="flex items-center gap-3">
+            <button id="mobile-menu-btn" class="md:hidden p-2 hover:bg-surface-container-high rounded-full text-on-surface-variant">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <!-- Desktop Collapse Button -->
+            <button id="desktop-collapse-btn" class="hidden md:flex p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant mr-2" title="Lipat Menu">
+                <span class="material-symbols-outlined">menu_open</span>
+            </button>
+            <h2 class="font-bold text-xl text-on-surface">Presensi Tahfidz</h2>
+        </div>
+        <div class="flex items-center gap-3">
+            <!-- Tanggal -->
+            <div class="hidden md:flex items-center gap-2 px-4 py-2 bg-surface-container-high rounded-full text-sm text-on-surface-variant">
+                <span class="material-symbols-outlined text-base">today</span>
+                <span id="tanggal-display">-</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="ml-0 md:ml-72 p-4 md:p-12 pb-32 w-full md:w-[calc(100%-18rem)]">
+
+        <!-- Notifikasi Hari Tidak Valid -->
+        <div id="notif-bukan-hari-aktif" class="hidden mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+            <span class="material-symbols-outlined text-amber-600 mt-0.5" style="font-variation-settings: 'FILL' 1;">warning</span>
+            <div>
+                <p class="font-bold text-amber-800">Hari ini bukan hari aktif tahfidz</p>
+                <p class="text-amber-700 text-sm mt-1">Presensi kelas tahfidz hanya dicatat pada hari <strong>Senin – Kamis</strong>. Hari Jumat, Sabtu, dan Minggu tidak ada sesi tahfidz.</p>
+            </div>
+        </div>
+
+        <!-- Header: Pilih Kelas + Tanggal -->
+        <div class="flex flex-col md:flex-row gap-4 mb-8 items-start md:items-end">
+            <div class="flex-1">
+                <h3 class="font-bold text-3xl text-primary mb-1">Input Presensi</h3>
+                <p class="text-on-surface-variant text-sm">Catat kehadiran siswa kelas tahfidz hari ini</p>
+            </div>
+            <div class="flex gap-3 items-center">
+                <div>
+                    <label class="text-xs font-semibold text-on-surface-variant mb-1 block">Kelas</label>
+                    <input type="hidden" id="select-kelas" value="" />
+                    <div class="py-2.5 px-4 bg-surface-container-low border border-outline-variant rounded-xl text-sm font-bold text-primary flex items-center gap-2 min-h-[46px] min-w-[180px]">
+                        <span class="material-symbols-outlined text-base">meeting_room</span>
+                        <span id="label-kelas">Memuat kelas...</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-on-surface-variant mb-1 block">Tanggal</label>
+                    <input type="date" id="input-tanggal" class="py-2.5 px-4 bg-white border border-outline-variant rounded-xl text-sm font-medium" />
+                </div>
+                <div class="pt-5">
+                    <button onclick="loadPresensi()" class="py-2.5 px-5 bg-primary text-white rounded-xl font-bold text-sm flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all">
+                        <span class="material-symbols-outlined text-base">search</span>
+                        Tampilkan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="summary-cards">
+            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center">
+                <p class="text-3xl font-black text-emerald-700" id="count-hadir">-</p>
+                <p class="text-xs font-semibold text-emerald-600 mt-1">Hadir</p>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
+                <p class="text-3xl font-black text-amber-700" id="count-izin">-</p>
+                <p class="text-xs font-semibold text-amber-600 mt-1">Izin</p>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center">
+                <p class="text-3xl font-black text-blue-700" id="count-sakit">-</p>
+                <p class="text-xs font-semibold text-blue-600 mt-1">Sakit</p>
+            </div>
+            <div class="bg-red-50 border border-red-200 rounded-2xl p-4 text-center">
+                <p class="text-3xl font-black text-red-700" id="count-alpha">-</p>
+                <p class="text-xs font-semibold text-red-600 mt-1">Alpha</p>
+            </div>
+        </div>
+
+        <!-- Tombol Aksi Cepat -->
+        <div class="flex gap-3 mb-6 flex-wrap">
+            <button onclick="setAllStatus('hadir')" class="py-2 px-4 bg-emerald-600 text-white rounded-lg text-sm font-semibold flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-base">check_circle</span>
+                Semua Hadir
+            </button>
+            <button onclick="clearAll()" class="py-2 px-4 bg-surface-container-high text-on-surface rounded-lg text-sm font-semibold flex items-center gap-2 hover:brightness-95 active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-base">refresh</span>
+                Reset Semua
+            </button>
+            <div class="flex-1"></div>
+            <button onclick="simpanPresensi()" id="btn-simpan" class="py-2.5 px-8 bg-secondary-container text-white rounded-xl text-sm font-bold flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                <span class="material-symbols-outlined text-base">save</span>
+                Simpan Presensi
+            </button>
+        </div>
+
+        <!-- Daftar Siswa -->
+        <div class="bg-white rounded-2xl shadow-sm border border-outline-variant/50 overflow-hidden">
+            <div class="p-6 border-b border-outline-variant/30 flex items-center justify-between">
+                <div>
+                    <h4 class="font-bold text-on-surface" id="nama-kelas-header">Pilih kelas untuk memulai</h4>
+                    <p class="text-xs text-on-surface-variant mt-0.5" id="info-kelas-header">-</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-on-surface-variant">Belum diisi</p>
+                    <p class="font-bold text-primary" id="count-belum-diisi">0 siswa</p>
+                </div>
+            </div>
+
+            <div id="siswa-list" class="divide-y divide-outline-variant/20">
+                <div class="py-16 text-center text-on-surface-variant">
+                    <span class="material-symbols-outlined text-5xl mb-3 opacity-30">people</span>
+                    <p class="text-sm">Pilih kelas dan tanggal, lalu klik <strong>Tampilkan</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- REKAP KELAS (Accordion) -->
+        <div class="mt-10">
+            <div class="flex items-center gap-3 mb-5">
+                <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">bar_chart</span>
+                <h4 class="font-bold text-xl text-primary">Rekap Kehadiran Bulan Ini</h4>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-outline-variant/50 overflow-hidden">
+                <div class="p-6 border-b border-outline-variant/30 flex items-center justify-between gap-4 flex-wrap">
+                    <div class="flex items-center gap-4 flex-wrap">
+                        <div class="flex gap-2 items-center">
+                            <label class="text-xs font-semibold text-on-surface-variant">Dari</label>
+                            <input type="date" id="rekap-dari" class="py-2 px-3 bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <label class="text-xs font-semibold text-on-surface-variant">Sampai</label>
+                            <input type="date" id="rekap-sampai" class="py-2 px-3 bg-surface-container-low border border-outline-variant rounded-lg text-sm" />
+                        </div>
+                        <button onclick="loadRekap()" class="py-2 px-4 bg-tertiary text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all">
+                            <span class="material-symbols-outlined text-base">refresh</span>
+                            Tampilkan Rekap
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="downloadPresensiCSV()" id="btn-download-csv" class="py-2 px-4 bg-primary text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-sm">
+                            <span class="material-symbols-outlined text-base">download</span>
+                            Download CSV / Excel
+                        </button>
+                        <button onclick="window.print()" class="py-2 px-3 bg-surface-container-high text-on-surface rounded-lg text-sm font-bold flex items-center gap-1.5 hover:bg-surface-container-highest active:scale-95 transition-all">
+                            <span class="material-symbols-outlined text-base">print</span>
+                            Cetak
+                        </button>
+                    </div>
+                </div>
+
+                <div id="rekap-table" class="p-6">
+                    <p class="text-center text-on-surface-variant text-sm py-8">Pilih rentang tanggal dan klik Tampilkan Rekap</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Mobile Nav -->
+    <nav class="fixed bottom-0 w-full md:hidden rounded-t-lg shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] bg-surface-container-lowest z-50 flex justify-around items-center h-16">
+        <a class="text-on-surface-variant flex flex-col items-center justify-center p-2" href="beranda.html">
+            <span class="material-symbols-outlined">home</span>
+            <span class="text-[10px]">Beranda</span>
+        </a>
+        <a class="text-primary font-bold flex flex-col items-center justify-center p-2" href="#">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">fact_check</span>
+            <span class="text-[10px]">Presensi</span>
+        </a>
+        <a class="text-on-surface-variant flex flex-col items-center justify-center p-2" href="koreksi.html">
+            <span class="material-symbols-outlined">rate_review</span>
+            <span class="text-[10px]">Koreksi</span>
+        </a>
+    </nav>
+
+    <script>
+    let kelasList = [];
+    let siswaData = []; // [{siswa_id, nama, status, catatan}]
+    let hariValid = true;
+
+    const HARI_NAMES = { 1:'Senin', 2:'Selasa', 3:'Rabu', 4:'Kamis', 5:'Jumat', 6:'Sabtu', 0:'Minggu' };
+    const BULAN_ID   = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await authGuard.protect('guru');
+        if (!user) return;
+        authGuard.initUserData(user);
+
+        // Set tanggal hari ini
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        document.getElementById('input-tanggal').value = todayStr;
+        document.getElementById('tanggal-display').textContent = formatTanggal(todayStr);
+
+        // Cek apakah hari ini hari aktif tahfidz
+        const dayOfWeek = today.getDay(); // 0=Min, 1=Sen, 2=Sel, 3=Rab, 4=Kam
+        hariValid = dayOfWeek >= 1 && dayOfWeek <= 4;
+        if (!hariValid) {
+            document.getElementById('notif-bukan-hari-aktif').classList.remove('hidden');
+        }
+
+        // Set default rekap (awal bulan - hari ini)
+        document.getElementById('rekap-dari').value = todayStr.substring(0,8) + '01';
+        document.getElementById('rekap-sampai').value = todayStr;
+
+        // Load daftar kelas guru ini
+        await loadKelasList(user);
+    });
+
+    async function loadKelasList(user) {
+        try {
+            const res = await api.get('/api/guru/beranda-stats.php');
+            const kelasId = res.data.guru?.kelas_id;
+
+            const labelKelas = document.getElementById('label-kelas');
+            const inputKelas = document.getElementById('select-kelas');
+
+            if (kelasId) {
+                inputKelas.value = kelasId;
+                const badge = res.data.guru?.jenis_kelas === 'intensif' ? ' ⭐' : res.data.guru?.jenis_kelas === 'koordinator' ? ' 👑' : '';
+                labelKelas.textContent = (res.data.guru?.kelas || '') + badge;
+                
+                // Auto load
+                await loadPresensi();
+            } else {
+                inputKelas.value = '';
+                labelKelas.textContent = 'Tidak Ada Kelas';
+                labelKelas.classList.add('text-error');
+                api.toast('Anda tidak memiliki kelas penugasan aktif.', 'error');
+                
+                const list = document.getElementById('siswa-list');
+                list.innerHTML = `<div class="py-12 text-center text-error text-sm">Gagal memuat: Guru tidak memiliki kelas penugasan.</div>`;
+            }
+        } catch(e) {
+            console.error('Gagal load kelas:', e);
+        }
+    }
+
+    async function loadPresensi() {
+        const kelasId = document.getElementById('select-kelas').value;
+        const tanggal = document.getElementById('input-tanggal').value;
+
+        if (!kelasId || !tanggal) {
+            api.toast('Pilih kelas dan tanggal terlebih dahulu.', 'error');
+            return;
+        }
+
+        const list = document.getElementById('siswa-list');
+        list.innerHTML = `<div class="py-12 text-center text-on-surface-variant">
+            <span class="material-symbols-outlined text-4xl mb-2 opacity-30 animate-spin">refresh</span>
+            <p class="text-sm">Memuat data...</p>
+        </div>`;
+
+        try {
+            const res = await api.get(`/api/guru/presensi-harian.php?kelas_id=${kelasId}&tanggal=${tanggal}`);
+            const data = res.data;
+
+            hariValid = data.hari_valid;
+            if (!hariValid) {
+                document.getElementById('notif-bukan-hari-aktif').classList.remove('hidden');
+            } else {
+                document.getElementById('notif-bukan-hari-aktif').classList.add('hidden');
+            }
+
+            siswaData = data.siswa.map(s => ({
+                siswa_id: s.siswa_id,
+                nama: s.nama_lengkap,
+                panggilan: s.nama_panggilan,
+                nis: s.nis,
+                status: s.status || 'hadir',  // default hadir
+                catatan: s.catatan || ''
+            }));
+
+            const kelas = kelasList.find(k => k.id == kelasId);
+            document.getElementById('nama-kelas-header').textContent = kelas?.nama_kelas || `Kelas #${kelasId}`;
+            document.getElementById('info-kelas-header').textContent = `${formatTanggal(tanggal)} • ${data.hari || '-'} • ${siswaData.length} siswa`;
+
+            renderSiswaList();
+            updateCounts();
+
+            if (data.sudah_input) {
+                api.toast('Presensi hari ini sudah pernah diinput. Anda bisa mengubahnya.', 'info');
+            }
+
+        } catch(e) {
+            list.innerHTML = `<div class="py-12 text-center text-error text-sm">Gagal memuat data: ${e.message}</div>`;
+        }
+    }
+
+    function renderSiswaList() {
+        const list = document.getElementById('siswa-list');
+
+        if (siswaData.length === 0) {
+            list.innerHTML = '<div class="py-12 text-center text-on-surface-variant text-sm">Belum ada siswa di kelas ini.</div>';
+            return;
+        }
+
+        list.innerHTML = siswaData.map((siswa, idx) => {
+            const inisial = siswa.nama.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+            return `
+            <div class="flex items-center gap-4 px-6 py-4 hover:bg-surface-container-low transition-colors row-animate" style="animation-delay:${idx*30}ms">
+                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">${inisial}</div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-on-surface text-sm truncate">${siswa.nama}</p>
+                    <p class="text-xs text-on-surface-variant">${siswa.panggilan || '-'} · ${siswa.nis}</p>
+                </div>
+                <div class="flex gap-2 shrink-0 flex-wrap justify-end">
+                    ${['hadir','izin','sakit','alpha'].map(s => {
+                        const labels = {hadir:'H',izin:'I',sakit:'S',alpha:'A'};
+                        const isActive = siswa.status === s;
+                        return `<button onclick="setStatus(${idx},'${s}')" 
+                            class="toggle-btn w-8 h-8 rounded-lg text-xs font-bold border transition-all ${isActive ? 'active-'+s+' border-transparent' : 'border-outline-variant text-on-surface-variant hover:brightness-95'}"
+                            title="${s.charAt(0).toUpperCase()+s.slice(1)}">${labels[s]}</button>`;
+                    }).join('')}
+                </div>
+            </div>`;
+        }).join('');
+
+        updateCounts();
+    }
+
+    function setStatus(idx, status) {
+        siswaData[idx].status = status;
+
+        // Update tombol di DOM
+        const rows = document.querySelectorAll('#siswa-list > div');
+        const row = rows[idx];
+        if (!row) return;
+
+        const btns = row.querySelectorAll('.toggle-btn');
+        const statusOrder = ['hadir','izin','sakit','alpha'];
+        btns.forEach((btn, i) => {
+            const s = statusOrder[i];
+            btn.className = `toggle-btn w-8 h-8 rounded-lg text-xs font-bold border transition-all `;
+            if (s === status) {
+                btn.className += `active-${s} border-transparent`;
+            } else {
+                btn.className += `border-outline-variant text-on-surface-variant hover:brightness-95`;
+            }
+        });
+
+        updateCounts();
+    }
+
+    function setAllStatus(status) {
+        siswaData.forEach((_, idx) => setStatus(idx, status));
+    }
+
+    function clearAll() {
+        siswaData.forEach((_, idx) => setStatus(idx, 'hadir'));
+    }
+
+    function updateCounts() {
+        const counts = { hadir: 0, izin: 0, sakit: 0, alpha: 0 };
+        siswaData.forEach(s => counts[s.status] = (counts[s.status] || 0) + 1);
+
+        document.getElementById('count-hadir').textContent = counts.hadir;
+        document.getElementById('count-izin').textContent  = counts.izin;
+        document.getElementById('count-sakit').textContent = counts.sakit;
+        document.getElementById('count-alpha').textContent = counts.alpha;
+
+        const belum = siswaData.filter(s => !s.status).length;
+        document.getElementById('count-belum-diisi').textContent = `${belum} belum diisi`;
+    }
+
+    async function simpanPresensi() {
+        const kelasId = document.getElementById('select-kelas').value;
+        const tanggal = document.getElementById('input-tanggal').value;
+
+        if (!kelasId || !tanggal || siswaData.length === 0) {
+            api.toast('Tidak ada data untuk disimpan.', 'error');
+            return;
+        }
+
+        if (!hariValid) {
+            api.toast('Tidak bisa menyimpan presensi di hari Jumat/Sabtu/Minggu.', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('btn-simpan');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined text-base animate-spin">refresh</span> Menyimpan...';
+
+        try {
+            const payload = {
+                tanggal:  tanggal,
+                kelas_id: parseInt(kelasId),
+                data: siswaData.map(s => ({
+                    siswa_id: s.siswa_id,
+                    status:   s.status,
+                    catatan:  s.catatan
+                }))
+            };
+
+            const res = await api.post('/api/guru/presensi-input.php', payload);
+            if (res.status === 'success') {
+                api.toast(`✅ Presensi tersimpan! ${res.data.tersimpan} siswa tercatat.`, 'success');
+            } else {
+                api.toast('Gagal menyimpan: ' + res.message, 'error');
+            }
+        } catch(e) {
+            api.toast('Terjadi kesalahan: ' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-base">save</span> Simpan Presensi';
+        }
+    }
+
+    let currentRekapData = [];
+
+    async function loadRekap() {
+        const kelasId = document.getElementById('select-kelas').value;
+        const dari    = document.getElementById('rekap-dari').value;
+        const sampai  = document.getElementById('rekap-sampai').value;
+
+        if (!kelasId) {
+            api.toast('Pilih kelas terlebih dahulu.', 'error');
+            return;
+        }
+
+        const container = document.getElementById('rekap-table');
+        container.innerHTML = '<p class="text-center text-on-surface-variant text-sm py-8">Memuat rekap...</p>';
+
+        try {
+            const res = await api.get(`/api/guru/presensi-rekap.php?kelas_id=${kelasId}&dari=${dari}&sampai=${sampai}`);
+            const data = res.data;
+            const rekap = data.rekap_siswa || [];
+            currentRekapData = rekap;
+
+            if (rekap.length === 0) {
+                container.innerHTML = '<p class="text-center text-on-surface-variant text-sm py-8">Belum ada data presensi di periode ini.</p>';
+                return;
+            }
+
+            container.innerHTML = `
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="bg-surface-container-low text-on-surface-variant">
+                            <th class="px-4 py-3 rounded-tl-lg font-semibold">Siswa</th>
+                            <th class="px-4 py-3 font-semibold text-center text-emerald-700">H</th>
+                            <th class="px-4 py-3 font-semibold text-center text-amber-700">I</th>
+                            <th class="px-4 py-3 font-semibold text-center text-blue-700">S</th>
+                            <th class="px-4 py-3 font-semibold text-center text-red-700">A</th>
+                            <th class="px-4 py-3 rounded-tr-lg font-semibold">Kehadiran</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant/20">
+                        ${rekap.map(r => {
+                            const pct = r.persentase_hadir || 0;
+                            const barColor = pct >= 80 ? '#059669' : pct >= 60 ? '#d97706' : '#dc2626';
+                            return `
+                            <tr class="hover:bg-surface-container-low transition-colors">
+                                <td class="px-4 py-3">
+                                    <p class="font-semibold text-on-surface">${r.nama_lengkap}</p>
+                                    <p class="text-xs text-on-surface-variant">${r.nama_panggilan || r.nis}</p>
+                                </td>
+                                <td class="px-4 py-3 text-center font-bold text-emerald-700">${r.hadir}</td>
+                                <td class="px-4 py-3 text-center font-bold text-amber-700">${r.izin}</td>
+                                <td class="px-4 py-3 text-center font-bold text-blue-700">${r.sakit}</td>
+                                <td class="px-4 py-3 text-center font-bold text-red-700">${r.alpha}</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1 bg-surface-container-high rounded-full h-2 overflow-hidden">
+                                            <div class="h-full rounded-full" style="width:${pct}%; background:${barColor}"></div>
+                                        </div>
+                                        <span class="text-xs font-bold" style="color:${barColor}">${pct}%</span>
+                                    </div>
+                                </td>
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+        } catch(e) {
+            container.innerHTML = `<p class="text-center text-error text-sm py-8">Gagal memuat rekap: ${e.message}</p>`;
+        }
+    }
+
+    function downloadPresensiCSV() {
+        if (!currentRekapData || currentRekapData.length === 0) {
+            api.toast('Belum ada data rekap yang dimuat. Klik "Tampilkan Rekap" dahulu.', 'error');
+            return;
+        }
+
+        const dari = document.getElementById('rekap-dari').value;
+        const sampai = document.getElementById('rekap-sampai').value;
+        const namaKelas = document.getElementById('label-kelas')?.textContent || 'Kelas';
+
+        const headers = ['No', 'NIS', 'Nama Lengkap', 'Nama Panggilan', 'Hadir (H)', 'Izin (I)', 'Sakit (S)', 'Alpha (A)', 'Total Tercatat', 'Persentase Kehadiran (%)'];
+        const rows = currentRekapData.map((r, idx) => [
+            idx + 1,
+            r.nis || '-',
+            r.nama_lengkap || '-',
+            r.nama_panggilan || '-',
+            r.hadir || 0,
+            r.izin || 0,
+            r.sakit || 0,
+            r.alpha || 0,
+            r.total_tercatat || 0,
+            (r.persentase_hadir || 0) + '%'
+        ]);
+
+        let csvContent = headers.join(',') + '\n' + rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')).join('\n');
+
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        const cleanClassName = namaKelas.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_');
+        link.download = `Rekap_Presensi_${cleanClassName}_${dari}_sd_${sampai}.csv`;
+        link.click();
+        api.toast('✅ Rekap presensi berhasil diunduh dalam format CSV/Excel!', 'success');
+    }
+
+    function formatTanggal(str) {
+        if (!str) return '-';
+        const d = new Date(str + 'T00:00:00');
+        const hari = HARI_NAMES[d.getDay()];
+        return `${hari}, ${d.getDate()} ${BULAN_ID[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    // Update display & validasi saat tanggal berubah
+    document.getElementById('input-tanggal')?.addEventListener('change', function() {
+        document.getElementById('tanggal-display').textContent = formatTanggal(this.value);
+        const d = new Date(this.value + 'T00:00:00');
+        const day = d.getDay(); // 0=Min, 1=Sen, 2=Sel, 3=Rab, 4=Kam, 5=Jum, 6=Sab
+        hariValid = day >= 1 && day <= 4;
+        const btnSimpan = document.getElementById('btn-simpan');
+        
+        if (!hariValid) {
+            document.getElementById('notif-bukan-hari-aktif').classList.remove('hidden');
+            api.toast('Presensi tahfidz hanya dicatat pada hari Senin – Kamis.', 'warning');
+            if (btnSimpan) btnSimpan.disabled = true;
+        } else {
+            document.getElementById('notif-bukan-hari-aktif').classList.add('hidden');
+            if (btnSimpan) btnSimpan.disabled = false;
+        }
+    });
+    </script>
+
+</body>
+</html>

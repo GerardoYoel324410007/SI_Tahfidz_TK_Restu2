@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Surat Al-Quran - Tahfidz BA Admin</title>
+    <meta name="description" content="Kelola daftar surat Al-Quran yang digunakan dalam sistem tahfidz.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: {
+                "colors": {"tertiary":"#003580","primary-fixed":"#a9f3be","on-primary":"#ffffff","surface-bright":"#f8faf9","on-primary-container":"#8ad2a0","secondary-container":"#fe8a29","surface-container-highest":"#e1e3e2","primary":"#004323","error":"#ba1a1a","on-surface":"#191c1c","surface":"#f8faf9","surface-container-high":"#e6e9e8","on-surface-variant":"#404941","tertiary-container":"#004aae","secondary":"#964900","surface-container-lowest":"#ffffff","surface-container-low":"#f2f4f3","surface-container":"#eceeed","on-error":"#ffffff","primary-container":"#0d5c34","outline-variant":"#bfc9bf","error-container":"#ffdad6"},
+                "fontFamily": {"sans": ["Plus Jakarta Sans","sans-serif"]}
+            }}
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+        .row-anim { animation: fadeIn 0.2s ease forwards; }
+    </style>
+    <script src="../../assets/js/api.js?v=4"></script>
+    <script src="../../assets/js/auth-guard.js?v=3"></script>
+</head>
+<body class="bg-surface-bright text-on-surface antialiased">
+
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-primary shadow-[40px_0_60px_-15px_rgba(0,67,35,0.15)] flex-col py-8 z-50 transform transition-transform duration-300 -translate-x-full md:translate-x-0 hidden md:flex overflow-y-auto"></aside>
+
+    <header class="h-20 w-full md:w-[calc(100%-18rem)] sticky top-0 z-40 bg-surface-bright/80 backdrop-blur-md shadow-sm flex justify-between items-center px-4 md:px-12 ml-0 md:ml-72">
+        <div class="flex items-center gap-3">
+            <button id="mobile-menu-btn" class="md:hidden p-2 hover:bg-surface-container-high rounded-full text-on-surface-variant">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <button id="desktop-collapse-btn" class="hidden md:flex p-2 hover:bg-surface-container-high rounded-full text-on-surface-variant mr-2">
+                <span class="material-symbols-outlined">menu_open</span>
+            </button>
+            <div>
+                <h2 class="font-bold text-xl text-on-surface">Manajemen Surat Al-Quran</h2>
+                <p class="text-xs text-on-surface-variant">Kelola daftar surat yang digunakan sistem tahfidz</p>
+            </div>
+        </div>
+        <button onclick="openTambahModal()" class="flex items-center gap-2 px-5 py-2.5 bg-secondary-container text-white font-bold rounded-xl shadow-lg hover:brightness-105 active:scale-95 transition-all text-sm">
+            <span class="material-symbols-outlined text-base">add</span>
+            Tambah Surat
+        </button>
+    </header>
+
+    <main class="ml-0 md:ml-72 p-4 md:p-12 pb-32 w-full md:w-[calc(100%-18rem)]">
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white rounded-2xl border border-outline-variant/40 p-5 shadow-sm">
+                <p class="text-xs font-semibold text-on-surface-variant mb-1">Total Surat Aktif</p>
+                <p class="text-3xl font-black text-primary" id="stat-aktif">-</p>
+            </div>
+            <div class="bg-white rounded-2xl border border-outline-variant/40 p-5 shadow-sm">
+                <p class="text-xs font-semibold text-on-surface-variant mb-1">Juz dalam Sistem</p>
+                <p class="text-3xl font-black text-tertiary" id="stat-juz">-</p>
+            </div>
+            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-5 shadow-sm">
+                <p class="text-xs font-semibold text-emerald-100 mb-1">Total Ayat</p>
+                <p class="text-3xl font-black text-white" id="stat-ayat">-</p>
+            </div>
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="flex gap-3 mb-5 items-center flex-wrap">
+            <div class="relative flex-1 min-w-[200px]">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-base">search</span>
+                <input type="text" id="search-surat" oninput="renderTable()" placeholder="Cari nama surat..."
+                    class="w-full pl-10 pr-4 py-2.5 border border-outline-variant rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary/30">
+            </div>
+            <label class="flex items-center gap-2 text-sm font-semibold text-on-surface-variant cursor-pointer">
+                <input type="checkbox" id="show-nonaktif" onchange="renderTable()" class="rounded text-primary w-4 h-4">
+                Tampilkan Nonaktif
+            </label>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-outline-variant/50 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="bg-surface-container-low text-on-surface-variant border-b border-outline-variant/50">
+                            <th class="px-6 py-4 font-semibold text-xs uppercase tracking-wider w-14">No.</th>
+                            <th class="px-6 py-4 font-semibold text-xs uppercase tracking-wider">Nama Surat</th>
+                            <th class="px-6 py-4 font-semibold text-xs uppercase tracking-wider">Nama Latin</th>
+                            <th class="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-center">Jumlah Ayat</th>
+                            <th class="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-center">Status</th>
+                            <th class="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="surat-tbody" class="divide-y divide-outline-variant/30">
+                        <tr><td colspan="6" class="py-12 text-center text-on-surface-variant text-sm">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="mt-6 p-4 bg-tertiary/5 border border-tertiary/20 rounded-2xl flex gap-3 items-start">
+            <span class="material-symbols-outlined text-tertiary mt-0.5" style="font-variation-settings:'FILL' 1">info</span>
+            <div class="text-sm text-on-surface-variant">
+                <p class="font-bold text-on-surface mb-1">Panduan Penggunaan</p>
+                <ul class="list-disc list-inside space-y-0.5">
+                    <li>Surat yang dinonaktifkan <strong>tidak akan muncul</strong> di pilihan guru saat membuat target hafalan</li>
+                    <li>Surat yang sudah digunakan dalam setoran <strong>tidak bisa dihapus permanen</strong>, hanya dinonaktifkan</li>
+                    <li>Nomor surat diambil dari urutan Al-Quran standar (misal: Al-Fatihah = 1, An-Nas = 114)</li>
+                </ul>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- =================== FORM MODAL =================== -->
+    <div id="form-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings:'FILL' 1">menu_book</span>
+                </div>
+                <div>
+                    <h3 id="modal-title" class="font-bold text-xl text-on-surface">Tambah Surat Baru</h3>
+                    <p class="text-sm text-on-surface-variant">Isi data surat Al-Quran</p>
+                </div>
+                <button onclick="closeModal()" class="ml-auto p-2 hover:bg-surface-container rounded-full text-on-surface-variant">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <input type="hidden" id="edit-id">
+
+            <div class="space-y-4 text-sm font-semibold text-gray-700">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block mb-1 text-xs">Nomor Surat <span class="text-error">*</span></label>
+                        <input type="number" id="f-nomor" min="1" max="114" placeholder="1-114"
+                            class="w-full py-2.5 px-3 bg-surface-container-low border border-outline-variant rounded-xl text-sm font-normal">
+                        <p class="text-[11px] text-on-surface-variant mt-1">Urutan dalam Al-Quran</p>
+                    </div>
+                    <div>
+                        <label class="block mb-1 text-xs">Jumlah Ayat <span class="text-error">*</span></label>
+                        <input type="number" id="f-ayat" min="1" placeholder="Jumlah ayat"
+                            class="w-full py-2.5 px-3 bg-surface-container-low border border-outline-variant rounded-xl text-sm font-normal">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-xs">Nama Surat (Arab) <span class="text-error">*</span></label>
+                    <input type="text" id="f-nama-arab" placeholder="Misal: الفاتحة"
+                        class="w-full py-2.5 px-3 bg-surface-container-low border border-outline-variant rounded-xl text-sm font-normal" dir="rtl">
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-xs">Nama Latin</label>
+                    <input type="text" id="f-nama-latin" placeholder="Misal: Al-Fatihah"
+                        class="w-full py-2.5 px-3 bg-surface-container-low border border-outline-variant rounded-xl text-sm font-normal">
+                </div>
+
+                <div id="field-aktif-wrapper" class="hidden items-center justify-between p-3 bg-surface-container-low rounded-xl">
+                    <span class="text-on-surface-variant">Surat Aktif</span>
+                    <input type="checkbox" id="f-aktif" checked class="rounded border-outline-variant text-primary focus:ring-primary w-5 h-5">
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeModal()" class="flex-1 py-3 bg-surface-container-high text-on-surface rounded-xl font-bold hover:bg-surface-dim transition-colors">Batal</button>
+                <button id="btn-simpan" onclick="simpanSurat()" class="flex-[2] py-3 bg-primary text-white rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg">
+                    <span class="material-symbols-outlined text-base">save</span> Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================== HAPUS CONFIRM MODAL =================== -->
+    <div id="hapus-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-sm p-8 shadow-2xl">
+            <div class="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-amber-600 text-3xl" style="font-variation-settings:'FILL' 1">block</span>
+            </div>
+            <h3 class="font-bold text-xl text-center mb-2">Nonaktifkan Surat?</h3>
+            <p class="text-sm text-on-surface-variant text-center mb-6">Surat <strong id="hapus-nama"></strong> tidak akan muncul di pilihan guru. Data setoran yang sudah ada tidak terpengaruh.</p>
+            <div class="flex gap-3">
+                <button onclick="closeHapusModal()" class="flex-1 py-3 bg-surface-container-high rounded-xl font-bold">Batal</button>
+                <button id="btn-konfirmasi-hapus" onclick="konfirmasiHapus()" class="flex-1 py-3 bg-amber-600 text-white rounded-xl font-bold hover:brightness-110">Nonaktifkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile nav -->
+    <nav class="fixed bottom-0 w-full md:hidden rounded-t-lg shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] bg-surface-container-lowest z-50 flex justify-around items-center h-16">
+        <a class="text-on-surface-variant flex flex-col items-center justify-center p-2" href="dashboard.html">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="text-[10px]">Home</span>
+        </a>
+        <a class="text-on-surface-variant flex flex-col items-center justify-center p-2" href="manajemen-kelas.html">
+            <span class="material-symbols-outlined">meeting_room</span>
+            <span class="text-[10px]">Kelas</span>
+        </a>
+        <a class="text-primary font-bold flex flex-col items-center justify-center p-2" href="#">
+            <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">menu_book</span>
+            <span class="text-[10px]">Surat</span>
+        </a>
+    </nav>
+
+    <script>
+    let allSurat = [];
+    let hapusId = null;
+    let isEditMode = false;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await authGuard.protect('admin');
+        if (!user) return;
+        await loadData();
+    });
+
+    async function loadData() {
+        try {
+            const res = await api.get('/api/admin/daftar-surat.php?all=1');
+            allSurat = res.data || [];
+            updateStats();
+            renderTable();
+        } catch (e) {
+            document.getElementById('surat-tbody').innerHTML = `<tr><td colspan="6" class="py-12 text-center text-error text-sm">Gagal: ${e.message}</td></tr>`;
+        }
+    }
+
+    function updateStats() {
+        const aktif = allSurat.filter(s => s.is_active == 1);
+        const totalAyat = aktif.reduce((sum, s) => sum + parseInt(s.jumlah_ayat || 0), 0);
+        document.getElementById('stat-aktif').textContent = aktif.length;
+        document.getElementById('stat-ayat').textContent  = totalAyat.toLocaleString('id');
+        // Estimasi juz (30 juz = 114 surat dalam Al-Quran, hitung berdasarkan surat ke berapa max)
+        const maxNomor = aktif.length > 0 ? Math.max(...aktif.map(s => parseInt(s.nomor_surat))) : 0;
+        const juzEst   = maxNomor <= 114 ? Math.ceil(maxNomor / 3.8) : '?';
+        document.getElementById('stat-juz').textContent = juzEst > 30 ? 30 : juzEst;
+    }
+
+    function renderTable() {
+        const q          = (document.getElementById('search-surat').value || '').toLowerCase();
+        const showNonAktif = document.getElementById('show-nonaktif').checked;
+
+        let filtered = allSurat.filter(s => {
+            if (!showNonAktif && s.is_active != 1) return false;
+            if (q && !s.nama_surat.toLowerCase().includes(q) && !(s.nama_latin || '').toLowerCase().includes(q)) return false;
+            return true;
+        });
+
+        filtered.sort((a, b) => a.nomor_surat - b.nomor_surat);
+
+        const tbody = document.getElementById('surat-tbody');
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-on-surface-variant text-sm">Tidak ada surat ditemukan</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = filtered.map((s, i) => {
+            const aktif = s.is_active == 1;
+            return `
+            <tr class="hover:bg-surface-container-low transition-colors row-anim ${!aktif ? 'opacity-50' : ''}" style="animation-delay:${i*20}ms">
+                <td class="px-6 py-4 text-on-surface-variant font-mono text-xs">
+                    <span class="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-[11px] flex items-center justify-center">${s.nomor_surat}</span>
+                </td>
+                <td class="px-6 py-4">
+                    <p class="font-bold text-on-surface" dir="rtl" style="font-size:16px">${s.nama_surat}</p>
+                </td>
+                <td class="px-6 py-4 text-on-surface-variant">${s.nama_latin || '-'}</td>
+                <td class="px-6 py-4 text-center">
+                    <span class="font-bold text-on-surface">${s.jumlah_ayat}</span>
+                    <span class="text-xs text-on-surface-variant ml-1">ayat</span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                    ${aktif
+                        ? '<span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Aktif</span>'
+                        : '<span class="px-3 py-1 rounded-full text-xs font-bold bg-surface-container-high text-on-surface-variant">Nonaktif</span>'}
+                </td>
+                <td class="px-6 py-4 text-right">
+                    <div class="flex gap-2 justify-end">
+                        <button onclick="openEditModal(${s.id})" class="p-2 hover:bg-primary/10 text-primary rounded-lg transition-colors" title="Edit">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                        </button>
+                        ${aktif
+                            ? `<button onclick="openHapusModal(${s.id}, '${(s.nama_latin || s.nama_surat).replace(/'/g,"\\'")}' )" class="p-2 hover:bg-error-container/30 text-error rounded-lg transition-colors" title="Nonaktifkan">
+                                <span class="material-symbols-outlined text-sm">block</span>
+                               </button>`
+                            : `<button onclick="aktifkanSurat(${s.id})" class="p-2 hover:bg-emerald-100 text-emerald-700 rounded-lg transition-colors" title="Aktifkan kembali">
+                                <span class="material-symbols-outlined text-sm">check_circle</span>
+                               </button>`}
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function openTambahModal() {
+        isEditMode = false;
+        document.getElementById('modal-title').textContent = 'Tambah Surat Baru';
+        document.getElementById('edit-id').value = '';
+        document.getElementById('f-nomor').value = '';
+        document.getElementById('f-nomor').disabled = false;
+        document.getElementById('f-nama-arab').value = '';
+        document.getElementById('f-nama-latin').value = '';
+        document.getElementById('f-ayat').value = '';
+        document.getElementById('field-aktif-wrapper').classList.add('hidden');
+        document.getElementById('form-modal').classList.remove('hidden');
+        document.getElementById('form-modal').classList.add('flex');
+    }
+
+    function openEditModal(id) {
+        const surat = allSurat.find(s => s.id == id);
+        if (!surat) return;
+        isEditMode = true;
+        document.getElementById('modal-title').textContent = 'Edit Surat';
+        document.getElementById('edit-id').value = id;
+        document.getElementById('f-nomor').value = surat.nomor_surat;
+        document.getElementById('f-nomor').disabled = true;
+        document.getElementById('f-nama-arab').value = surat.nama_surat;
+        document.getElementById('f-nama-latin').value = surat.nama_latin || '';
+        document.getElementById('f-ayat').value = surat.jumlah_ayat;
+        document.getElementById('f-aktif').checked = surat.is_active == 1;
+        document.getElementById('field-aktif-wrapper').classList.remove('hidden');
+        document.getElementById('field-aktif-wrapper').classList.add('flex');
+        document.getElementById('form-modal').classList.remove('hidden');
+        document.getElementById('form-modal').classList.add('flex');
+    }
+
+    function closeModal() {
+        document.getElementById('form-modal').classList.add('hidden');
+        document.getElementById('form-modal').classList.remove('flex');
+    }
+
+    async function simpanSurat() {
+        const btn = document.getElementById('btn-simpan');
+        const nomor   = parseInt(document.getElementById('f-nomor').value);
+        const namaArab = document.getElementById('f-nama-arab').value.trim();
+        const namaLatin = document.getElementById('f-nama-latin').value.trim();
+        const ayat    = parseInt(document.getElementById('f-ayat').value);
+        const aktif   = document.getElementById('f-aktif').checked ? 1 : 0;
+
+        if (!namaArab || !ayat) {
+            api.toast('Nama surat dan jumlah ayat wajib diisi!', 'error');
+            return;
+        }
+        if (!isEditMode && (!nomor || nomor < 1 || nomor > 114)) {
+            api.toast('Nomor surat harus antara 1-114!', 'error');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined text-base animate-spin">refresh</span> Menyimpan...';
+
+        try {
+            if (isEditMode) {
+                const id = document.getElementById('edit-id').value;
+                await api.put(`/api/admin/edit-surat.php?id=${id}`, {
+                    nama_surat: namaArab, nama_latin: namaLatin, jumlah_ayat: ayat, is_active: aktif
+                });
+                api.toast('Surat berhasil diperbarui!', 'success');
+            } else {
+                await api.post('/api/admin/tambah-surat.php', {
+                    nomor_surat: nomor, nama_surat: namaArab, nama_latin: namaLatin, jumlah_ayat: ayat
+                });
+                api.toast('Surat baru berhasil ditambahkan!', 'success');
+            }
+            closeModal();
+            await loadData();
+        } catch (e) {
+            api.toast(e.message || 'Gagal menyimpan surat', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-base">save</span> Simpan';
+        }
+    }
+
+    function openHapusModal(id, nama) {
+        hapusId = id;
+        document.getElementById('hapus-nama').textContent = nama;
+        document.getElementById('hapus-modal').classList.remove('hidden');
+        document.getElementById('hapus-modal').classList.add('flex');
+    }
+
+    function closeHapusModal() {
+        document.getElementById('hapus-modal').classList.add('hidden');
+        document.getElementById('hapus-modal').classList.remove('flex');
+        hapusId = null;
+    }
+
+    async function konfirmasiHapus() {
+        if (!hapusId) return;
+        const btn = document.getElementById('btn-konfirmasi-hapus');
+        btn.disabled = true; btn.textContent = 'Memproses...';
+        try {
+            await api.delete(`/api/admin/hapus-surat.php?id=${hapusId}`);
+            api.toast('Surat berhasil dinonaktifkan', 'success');
+            closeHapusModal();
+            await loadData();
+        } catch (e) {
+            api.toast(e.message || 'Gagal', 'error');
+            btn.disabled = false; btn.textContent = 'Nonaktifkan';
+        }
+    }
+
+    async function aktifkanSurat(id) {
+        try {
+            await api.put(`/api/admin/edit-surat.php?id=${id}`, { is_active: 1 });
+            api.toast('Surat berhasil diaktifkan kembali!', 'success');
+            await loadData();
+        } catch (e) {
+            api.toast(e.message || 'Gagal', 'error');
+        }
+    }
+    </script>
+</body>
+</html>
